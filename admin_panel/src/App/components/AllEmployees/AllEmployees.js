@@ -27,6 +27,7 @@ class AllEmployees extends Component {
         this.handleEmployeeForm = this.handleEmployeeForm.bind(this);
         this.saveEmployee = this.saveEmployee.bind(this);
         // this.editEmployee = this.editEmployee.bind(this);
+        this.removeEmployee = this.removeEmployee.bind(this);
     }
 
     handleEmployeeForm(id, event) {
@@ -69,7 +70,7 @@ class AllEmployees extends Component {
         
         console.log("oldEmployeeID: ", oldEmployeeID);
         
-        if(oldEmployeeID) {
+        if(Number.isInteger(oldEmployeeID)) {
             console.log("Editing", oldEmployeeID);
             newEmpList.splice(oldEmployeeID, 1, employeeObject);
             //  Update the editID after updating
@@ -78,18 +79,20 @@ class AllEmployees extends Component {
             newEmpList.push(employeeObject);
         }
         
-
-        console.log("Before: ", this.state);
         this.setState({
             employeeList: newEmpList,
             showEmployeeForm: false
         });
-        console.log("After: ", this.state);
     }
 
-    removeEmployee(event, id) {
+    removeEmployee(empIndex, event) {
         console.log("Event", event);
-        console.log("ID", id);
+        console.log("ID", empIndex);
+        const newEmpList = Object.assign(this.state.employeeList);
+        newEmpList.splice(empIndex, 1);
+        this.setState({
+            employeeList: newEmpList
+        });
     }
 
     render() {
@@ -102,7 +105,7 @@ class AllEmployees extends Component {
                     <td>{emp.email}</td>
                     <td>{emp.dob}</td>
                     <td><a href="#" onClick={this.handleEmployeeForm.bind(this, id)} >Edit</a></td>
-                    <td><a href="#"  >Delete</a></td>
+                    <td><a href="#" onClick={this.removeEmployee.bind(this, id)}  >Delete</a></td>
                 </tr>
             );
         })
