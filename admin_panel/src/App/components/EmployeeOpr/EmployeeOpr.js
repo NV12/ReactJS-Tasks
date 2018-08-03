@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import DatePicker from 'react-datepicker';
 import moment from 'moment';
 
-import { Form, FormGroup, FormControl, Col, ControlLabel, Checkbox, Button } from './../../../../node_modules/react-bootstrap';
+import { Form, FormGroup, FormControl, Col, ControlLabel, Button } from './../../../../node_modules/react-bootstrap';
 import 'react-datepicker/dist/react-datepicker.css';
 import './EmployeeOpr.css';
 
@@ -15,6 +15,7 @@ class EmployeeOpr extends Component {
         };
         this.handleDateChange = this.handleDateChange.bind(this);
         this.saveEmployee = this.saveEmployee.bind(this);
+        this.empData = props.empData;
     }
 
     handleDateChange(date) {
@@ -31,25 +32,26 @@ class EmployeeOpr extends Component {
             email:event.target[1].value,
             dob:event.target[2].value
         }
-        this.props.saveEmp(newEmp, this.props.emp);
+        this.props.saveEmp(newEmp, this.props.empID);
     }
 
     render() {
         return (
             <div className="form">
+                {this.empData ? console.log("YES", this.empData) : null}
                 <Form horizontal onSubmit={this.saveEmployee} >
 
                     <FormGroup controlId="formHorizontalEmail">
                         <Col componentClass={ControlLabel} sm={2}>Name</Col>
                         <Col sm={6}>
-                            <FormControl type="text" placeholder="Name" value={this.props.empData ? this.props.empData[0] : null}/>
+                            <FormControl type="text" placeholder="Name" defaultValue={this.empData ? this.empData.name : null}/>
                         </Col>
                     </FormGroup>
 
                     <FormGroup controlId="formHorizontalEmail">
                         <Col componentClass={ControlLabel} sm={2}>Email</Col>
                         <Col sm={6}>
-                            <FormControl type="email" placeholder="Email" value={this.props.empData ? this.props.empData[1] : null}/>
+                            <FormControl type="email" placeholder="Email" defaultValue={this.empData ? this.empData.email : null}/>
                         </Col>
                     </FormGroup>
 
@@ -59,7 +61,7 @@ class EmployeeOpr extends Component {
                             <DatePicker className="datepickerClass"
                                 selected={this.state.startDate}
                                 onChange={this.handleDateChange}
-                                value={this.props.empData ? this.props.empData[2] : null}
+                                defaultValue={this.props.empData ? this.props.empData.dob : null}
                             />
                         </Col>
                     </FormGroup>
