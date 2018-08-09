@@ -5,14 +5,17 @@ exports.create = (req, res) => {
     console.log("Inside create");
     // console.log("req.body", req.body);
 
-    // // For allowing cross-origin requests and setting the header
-    // res.header('Access-Control-Allow-Origin', '*');
-    // res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-    let employee = new Employee({userName: req.body.userName, email: req.body.email, dob: req.body.dob});
+    let employee = new Employee({
+        empName: req.body.empName,
+        email: req.body.email,
+        empID: req.body.empID,
+        dob: req.body.dob
+    });
+
+    /*   NOTE: We can call save method on employee bcz its an object of Employee  */
 
     employee.save((err, emp) => {
-        if(err) {
-            // console.log("Insiod")
+        if (err) {
             console.log("Error: ", err);
             res.status(500).send(err)
         } else {
@@ -23,12 +26,12 @@ exports.create = (req, res) => {
 };
 
 // Find all employee method
-exports.findAll= (req, res) => {
+exports.findAll = (req, res) => {
     console.log("Inside findAll");
-    
+
     Employee.find((err, employees) => {
-        if(err) {
-            console.log("Error: ", err);
+        if (err) {
+            console.log("Find Error: ", err);
             res.status(500).send(err)
         } else {
             console.log("employee: ", employees);
@@ -37,3 +40,69 @@ exports.findAll= (req, res) => {
     });
 };
 
+//  Delete Employee method
+exports.delete = (req, res) => {
+    console.log("Inside delete");
+    console.log("Delete req: ", req);
+    console.log("Delete req params: ", req.params);
+
+    const deleteEmpProp = {
+        empID: req.params.empID
+    };
+    Employee.findOneAndRemove(deleteEmpProp, (err, emp) => {
+        if (err) {
+            console.log("Delete Error: ", err);
+            res.status(500).send(err);
+        } else {
+            console.log("Employee deleted successfully!", emp);
+            res.send(emp);
+        }
+    });
+}
+
+// Finding an employee
+exports.findOne = (req, res) => {
+    console.log("Inside findOne: ");
+    console.log("findOne req: ", req);
+    console.log("findOne req.params: ", req.params);
+
+    const findOneEmpID = {
+        empID: req.params.empID
+    };
+    Employee.findOne(findOneEmpID, (err, emp) => {
+        if(err) {
+            console.log("FindOne Error: ", err);
+            res.status(500).send(err);
+        } else {
+            console.log("Found employee !", emp);
+            res.send(emp);
+        }
+    });
+}
+
+// Edit employee methods
+exports.update = (req, res) => {
+    console.log("Inside update: ");
+    console.log("Update req: ", req);
+    console.log("Update req.params: ", req.params);
+
+    const updateEmpProp = {
+            empID: req.params.empID
+        },
+        newEmp = {
+            empName: req.body.empName,
+            email: req.body.email,
+            empID: req.body.empID,
+            dob: req.body.dob
+        };
+
+    Employee.findOneAndUpdate(updateEmpProp, newEmp, (err, emp) => {
+        if(err) {
+            console.log("Update Error: ", err);
+            res.status(500).send(err);
+        } else {
+            console.log("Employee updated successfully!");
+            res.send(emp);
+        }
+    });
+}

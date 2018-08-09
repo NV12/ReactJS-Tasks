@@ -12,6 +12,7 @@ app.use(bodyParser.json());
 app.use(function(req, res, next) {
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+    res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE");
     next();
 });
 
@@ -27,5 +28,5 @@ require('./src/server/apis/Employee/routes/employee.routes')(app);
 
 app.listen(3000, () => {
     console.log("Go to localhost:3000 on your browser");
-    console.log("__Dirname", __dirname);
+    // console.log("__Dirname", __dirname);
 });

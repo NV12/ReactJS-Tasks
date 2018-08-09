@@ -13,10 +13,43 @@ class EmployeeOpr extends Component {
         super(props);
 
         this.state = {
-            startDate: moment()
+            startDate: moment(),
+            editEmployeeData: null
         };
         this.handleDateChange = this.handleDateChange.bind(this);
-        this.sendEmployee = this.sendEmployee.bind(this);
+        this.saveEmployee = this.saveEmployee.bind(this);
+    }
+
+    componentWillMount() {
+        console.log("History Object: ", this.props.history)
+        if (this.props.match.params.empID) {
+            console.log("Working! ", this.props.match.params.empID);
+
+            axios.get('http://192.168.4.91:3000/employees/' + this.props.match.params.empID)
+                .then((res) => {
+                    console.log("editEmployeeData: ", res);
+
+                    const empData = {
+                        empName: res.data.empName,
+                        email: res.data.email,
+                        empID: res.data.empID,
+                        dob: res.data.dob
+                    };
+
+                    this.setState({
+                        editEmployeeData: empData
+                    });
+                })
+                .catch((err) => {
+                    console.log("editEmployeeData error: ", err);
+                });
+        }
+    }
+
+    componentWillUnmount() {
+        this.setState({
+            editEmployeeData: null
+        });
     }
 
     handleDateChange(date) {
@@ -25,54 +58,75 @@ class EmployeeOpr extends Component {
         });
     }
 
-    sendEmployee(event) {
+    saveEmployee(event) {
         event.preventDefault();
-        const newEmp = new this.createEmp(event.target[0].value, event.target[1].value, event.target[2].value);
 
-        if(this.props.location.state) {
-            this.props.editEmp(newEmp, this.props.match.params.id);
-        }else {
-            
-            axios.post('http://192.168.4.91:3000/employees/new', {
-                userName: event.target[0].value,
+        if (this.props.match.params.empID) {
+            console.log("Inside saveEmp", this.props.match.params.empID);
+
+            // Sending edited Employee to database
+            axios.put('http://192.168.4.91:3000/employees/edit/' + this.props.match.params.empID, {
+                empName: event.target[0].value,
                 email: event.target[1].value,
-                dob: event.target[2].value
+                empID: event.target[2].value,
+                dob: event.target[3].value
             })
-            .then((res) => {
-                console.log("Res: ", res);
-                this.props.saveEmp(newEmp);
-            })
-            .catch((err) => {
-                console.log("Err: ", err);
-            })
-        }
-        this.props.history.push({ pathname: '/employees' });
-    }
+                .then((res) => {
+                    console.log("Editing res: ", res);
+                    this.props.history.push({ pathname: '/employees' });
+                })
+                .catch((err) => {
+                    console.log("Err: ", err);
+                });
 
-    createEmp(name, email, dob) {
-        this.name = name;
-        this.email = email;
-        this.dob = dob;
+        } else {
+
+            axios.post('http://192.168.4.91:3000/employees/new', {
+                empName: event.target[0].value,
+                email: event.target[1].value,
+                empID: event.target[2].value,
+                dob: event.target[3].value
+            })
+                .then((res) => {
+                    console.log("Adding Res: ", res);
+                    this.props.history.push({ pathname: '/employees' });
+                })
+                .catch((err) => {
+                    console.log("Err: ", err);
+                })
+        }
+
     }
 
     render() {
         return (
-            <div className="form">         
-                <Form horizontal onSubmit={this.sendEmployee} >
+            <div className="form">
+                <Form horizontal onSubmit={this.saveEmployee} >
 
                     <FormGroup controlId="formHorizontalEmail">
                         <Col componentClass={ControlLabel} sm={2}>Name</Col>
                         <Col sm={6}>
                             <FormControl type="text" placeholder="Name"
-                                defaultValue={this.props.location.state ? this.props.location.state.empData.name : null} />
+                                defaultValue={this.state.editEmployeeData ? this.state.editEmployeeData.empName : null}
+                                required />
+                        </Col>
+                    </FormGroup>
+
+                    <FormGroup>
+                        <Col componentClass={ControlLabel} sm={2}>Email</Col>
+                        <Col sm={6}>
+                            <FormControl type="email" placeholder="Email"
+                                defaultValue={this.state.editEmployeeData ? this.state.editEmployeeData.email : null}
+                                required />
                         </Col>
                     </FormGroup>
 
                     <FormGroup controlId="formHorizontalEmail">
-                        <Col componentClass={ControlLabel} sm={2}>Email</Col>
+                        <Col componentClass={ControlLabel} sm={2}>ID</Col>
                         <Col sm={6}>
-                            <FormControl type="email" placeholder="Email"
-                                defaultValue={this.props.location.state ? this.props.location.state.empData.email : null} />
+                            <FormControl type="number" placeholder="ID should be unique"
+                                defaultValue={this.state.editEmployeeData ? this.state.editEmployeeData.empID : null}
+                                required />
                         </Col>
                     </FormGroup>
 
@@ -82,7 +136,8 @@ class EmployeeOpr extends Component {
                             <DatePicker className="datepickerClass"
                                 selected={this.state.startDate}
                                 onChange={this.handleDateChange}
-                                defaultValue={this.props.location.state ? this.props.location.state.empData.dob : null}
+                                defaultValue={this.state.editEmployeeData ? this.state.editEmployeeData.dob : null}
+                                required
                             />
                         </Col>
                     </FormGroup>
@@ -90,8 +145,10 @@ class EmployeeOpr extends Component {
                     <FormGroup>
                         <Col smOffset={2} sm={10}>
                             <Button bsStyle="success" type="submit">Save</Button>
+                            <Button bsStyle="info" onClick={this.props.history.goBack}>Back</Button>
                         </Col>
                     </FormGroup>
+
                 </Form>
             </div>
         )

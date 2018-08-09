@@ -1,81 +1,64 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import { Table } from 'react-bootstrap';
-import EmployeeOpr from '../EmployeeOpr/EmployeeOpr';
+// import EmployeeOpr from '../EmployeeOpr/EmployeeOpr';
 import './Employee.css';
 import { ButtonToolbar, Button } from 'react-bootstrap';
-import { Route, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
 
-class AllEmployees extends Component {
+class AllEmployees extends PureComponent {
     constructor(props) {
         super(props);
 
         this.state = {
-            employeeList: [
-                // {
-                //     name: "Naeim Vhora",
-                //     email: "naeim.for.work@gmail.com",
-                //     dob: "08/02/2018"
-                // },
-                // {
-                //     name: "Naeim Vhora 2",
-                //     email: "naeim.2for.work@gmail.com",
-                //     dob: "09/02/2018"
-                // }
-            ]
+            employeeList: []
         };
-        
-        this.saveNewEmployee = this.saveNewEmployee.bind(this);
-        this.editEmployee = this.editEmployee.bind(this);
+
         this.removeEmployee = this.removeEmployee.bind(this);
+        this.fetchEmployees = this.fetchEmployees.bind(this);
     }
 
     componentDidMount() {
+        console.log("Inside componentDidMount");
+        this.fetchEmployees();
+    }
+
+    fetchEmployees() {
+        console.log("Inside fetchEmployees");
+
         axios.get('http://192.168.4.91:3000/employees')
-        .then((res) => {
-            console.log("Res: ", res);
-            const empListFromDB = [];
-            res.data.forEach(element => {
-                empListFromDB.push({
-                    name: element.userName,
-                    email: element.email,
-                    dob: element.dob
+            .then((res) => {
+                console.log("All Employees: ", res);
+
+                const empListFromDB = [];
+                res.data.forEach(element => {
+                    empListFromDB.push({
+                        empName: element.empName,
+                        email: element.email,
+                        empID: element.empID,
+                        dob: element.dob
+                    });
+                })
+                this.setState({
+                    employeeList: empListFromDB
                 });
             })
-            this.setState({
-                employeeList: empListFromDB
+            .catch((err) => {
+                console.log("Error: ", err);
             });
-        })
-        .catch((err) => {
-            console.log("Error: ", err);
-        })
-    }
-
-    saveNewEmployee(employeeObject) {
-        const newEmpList = Object.assign(this.state.employeeList);
-        newEmpList.push(employeeObject);
-
-        this.setState({
-            employeeList: newEmpList        
-        });
-    }
-
-    editEmployee(newEmployee, oldEmployeeID) {
-        const newEmpList = Object.assign(this.state.employeeList);
-        newEmpList.splice(oldEmployeeID, 1, newEmployee);
-
-        this.setState({
-            employeeList: newEmpList
-        });
     }
 
     removeEmployee(empIndex, event) {
-        const newEmpList = Object.assign(this.state.employeeList);
-        newEmpList.splice(empIndex, 1);
 
-        this.setState({
-            employeeList: newEmpList
-        });
+        console.log("Inside removeEmployee");
+        axios.delete('http://192.168.4.91:3000/employees/' + empIndex)
+            .then((res) => {
+                console.log("Inside delete res: ", res);
+                this.fetchEmployees();
+            })
+            .catch((err) => {
+                console.log("Delete Error: ", err);
+            });
     }
 
     render() {
@@ -83,18 +66,18 @@ class AllEmployees extends Component {
             return (
                 <tr key={id}>
                     <td>{id + 1}</td>
-                    <td>{emp.name}</td>
+                    <td>{emp.empName}</td>
                     <td>{emp.email}</td>
+                    <td>{emp.empID}</td>
                     <td>{emp.dob}</td>
                     <td>
                         <Link to={{
-                            pathname: this.props.match.url + "/edit/" + id,
-                            state: { empData: this.state.employeeList[id], name: "naeim" }
+                            pathname: this.props.match.url + "/edit/" + emp.empID
                         }}>
                             Edit
                         </Link>
                     </td>
-                    <td><a onClick={this.removeEmployee.bind(this, id)}  >Delete</a></td>
+                    <td><a onClick={this.removeEmployee.bind(this, emp.empID)}  >Delete</a></td>
                 </tr>
             );
         })
@@ -107,6 +90,7 @@ class AllEmployees extends Component {
                             <th style={{ textAlign: "center" }} >#</th>
                             <th style={{ textAlign: "center" }} >Name</th>
                             <th style={{ textAlign: "center" }} >emailID</th>
+                            <th style={{ textAlign: "center" }} >ID</th>
                             <th style={{ textAlign: "center" }} >DOB</th>
                             <th style={{ textAlign: "center" }} colSpan="2" >Operations</th>
                         </tr>
@@ -123,9 +107,6 @@ class AllEmployees extends Component {
                         </ButtonToolbar>
                     </Link>
                 </div>
-
-                <Route exact path={this.props.match.url + "/new"} render={() => <EmployeeOpr saveEmp={this.saveNewEmployee} />} />
-                <Route exact path={this.props.match.url + "/edit/:id"} render={() => <EmployeeOpr editEmp={this.editEmployee} />} />
             </div>
         );
     }

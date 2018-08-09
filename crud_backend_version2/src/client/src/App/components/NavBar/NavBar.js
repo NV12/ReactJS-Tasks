@@ -3,6 +3,7 @@ import { Navbar, Nav, NavItem } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
 import { Route } from 'react-router-dom';
 import AllEmployees from '../AllEmployees/AllEmployees';
+import EmployeeOpr from '../EmployeeOpr/EmployeeOpr';
 
 class NavBar extends Component {
 
@@ -24,7 +25,10 @@ class NavBar extends Component {
                         </Nav>
                     </Navbar.Collapse>
                 </Navbar>
-                <Route path="/employees" component={AllEmployees} />
+
+                <Route exact path="/employees" component={AllEmployees} />
+                <Route exact path="/employees/new" component={EmployeeOpr} />
+                <Route exact path="/employees/edit/:empID" component={EmployeeOpr} />
             </div>
         );
     }
