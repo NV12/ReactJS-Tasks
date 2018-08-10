@@ -12,6 +12,10 @@ let adminSchema = new mongoose.Schema({
     }
 });
 
+
+/* We are using async method here, using sync methods for password will be a better aproach */
+/* I will be creating another version using syncs methods  */
+
 /* NOTE:  Must use function here to pass the context */
 
 adminSchema.pre('save', function (next) {
