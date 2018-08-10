@@ -3,28 +3,22 @@ const bcrypt = require('bcrypt');
 
 exports.create = (req, res) => {
     console.log("Inside admin create");
-    // console.log("req.body", req.body);
 
     let admin = new Admin({
-        adminID: req.body.adminID,
-        adminPassword: req.body.adminPassword
+        adminID: req.body.adminID
     });
 
-    // console.log("before adminPassword: ", admin.adminPassword);
-    // let bcryptGenPassword = require('./../../../../utils/bcrypt.admin.password');
-    // console.log("bcryptGenPassword: ", bcryptGenPassword);
-    // console.log("myPassdsssssss", bcryptGenPassword.generatePassword(admin.adminPassword));
-    // admin.adminPassword = bcryptGenPassword.generatePassword(admin.adminPassword);
-
+    // Creating hashed password for admin
+    admin.adminPassword = admin.generateHash(req.body.adminPassword);
+   
     /*   NOTE: We can call save method on admin bcz its an object of Admin  */
-    console.log("before adminPassword: ", admin);
+
     admin.save((err, adminObj) => {
         if (err) {
             console.log("Error in saving admin: ", err);
             res.status(500).send(err)
         } else {
             console.log("after adminPassword: ", admin);
-            console.log("adminObj: ", adminObj);
             res.send(adminObj);
         }
     });

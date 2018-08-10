@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const bcrypt = require('bcrypt-nodejs');
 
 let adminSchema = new mongoose.Schema({
     adminID: {
@@ -12,22 +13,14 @@ let adminSchema = new mongoose.Schema({
     }
 });
 
-/* NOTE:  Must use function here to pass the context */
+/*---------------- Using sync methods for creating hash password ------------------*/
 
-adminSchema.pre('save', function (next) {
-    let bcryptGenPassword = require('./../../../../utils/bcrypt.admin.password');
-    
-    /* NOTE:  Must use arrow function here to pass the context */
+adminSchema.methods.generateHash = function(password) {
+    return bcrypt.hashSync(password, bcrypt.genSaltSync(8), null);
+};
 
-    bcryptGenPassword.generatePassword(this.adminPassword, (err, password) => {
-        if (err) {
-            console.log("Error is there: ", err);
-        } else {
-            this.adminPassword = password;
-            next();
-        }
-    });
-    // console.log("after caling bcrypt: ", this);
-});
+adminSchema.methods.validPassword = function(password) {
+    return bcrypt.compareSync(password, this.password);
+}
 
 module.exports = mongoose.model("Admin", adminSchema);

@@ -1,4 +1,4 @@
-module.exports = (app) => {
+module.exports = (app, passport) => {
     console.log("Inside admin.routes.js");
     const admin = require('./../controllers/admin.controllers');
 
@@ -8,7 +8,11 @@ module.exports = (app) => {
 
     app.post('/admins/new', admin.create);
 
-    app.post('/admins/login', admin.login);
+    app.post('/admins/login', passport.authenticate('local-login', {
+        successfullRedirect: '/admins',
+        failureRedirect: '/admins/login',
+        failureFlash : true
+    }));
 
     app.put('/admins/edit/:adminID', admin.update);
 
