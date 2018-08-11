@@ -1,21 +1,23 @@
 const Admin = require('../models/admin.models');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcrypt-nodejs');
 
 exports.create = (req, res) => {
-    console.log("Inside admin create");
+    console.log("Inside admin create", req.body);
 
-    let admin = new Admin({
-        adminID: req.body.adminID
-    });
+    let admin = new Admin();
+    admin.adminEmail =  req.body.adminEmail,
+    admin.adminPassword =  bcrypt.hashSync(req.body.adminPassword, bcrypt.genSaltSync(8), null)
 
     // Creating hashed password for admin
-    admin.adminPassword = admin.generateHash(req.body.adminPassword);
+    // admin.adminPassword = admin.generateHash(req.body.adminPassword);
    
     /*   NOTE: We can call save method on admin bcz its an object of Admin  */
-
+    console.log("Admin:    ", admin);
     admin.save((err, adminObj) => {
         if (err) {
             console.log("Error in saving admin: ", err);
+            console.log("AdminOBJ: ", adminObj);
+            
             res.status(500).send(err)
         } else {
             console.log("after adminPassword: ", admin);
@@ -46,7 +48,7 @@ exports.delete = (req, res) => {
     console.log("Delete req params: ", req.params);
 
     const deleteAdminProp = {
-        adminID: req.params.adminID
+        _id: req.params.adminID
     };
     Admin.findOneAndRemove(deleteAdminProp, (err, adminData) => {
         if (err) {
@@ -66,7 +68,7 @@ exports.findOne = (req, res) => {
     console.log("findOne req.params: ", req.params);
 
     const findOneAdminID = {
-        adminID: req.params.adminID
+        _id: req.params.adminID
     };
     Admin.findOne(findOneAdminID, (err, adminData) => {
         if (err) {
@@ -86,10 +88,10 @@ exports.update = (req, res) => {
     console.log("Update req.params: ", req.params);
 
     const updateAdminProp = {
-            adminID: req.params.adminID
+            _id: req.params.adminID
         },
         newAdmin = {
-            adminID: req.body.adminID,
+            adminEmail: req.body.adminEmail,
             adminPassword: req.body.adminPassword
         };
 
@@ -104,34 +106,53 @@ exports.update = (req, res) => {
     });
 }
 
-exports.login = (req, res, next) => {
-    console.log("Inside login method: ");
-    console.log("req.params", req.body);
-    const findOneAdminID = {
-        adminID: req.body.adminID
-    };
-
-    Admin.findOne(findOneAdminID, (err, adminData) => {
-        if (err) {
-            console.log("Error in finding Admin! ", err);
-            res.status(500).send(err);
-        }
-
-        if (!adminData) {
-            console.log("No such admin exists", adminData);
-            res.send(adminData);
-        } else {
-            console.log("Found Admin !", adminData);
-
-            bcrypt.compare(req.body.adminPassword, adminData.adminPassword)
-                .then((status) => {
-                    if (status) {
-                        console.log("You are a correct one!");
-                        res.redirect('/admins');
-                    } else {
-                        res.send("Incorrect admin Password");
-                    }
-                })
-        }
+exports.logout = (req, res) => {
+    console.log("Inside logout");
+    req.session.destroy(err => {
+        console.log("Session destroyed");
+        res.send('You are logged out!');
     });
 }
+
+exports.ensureLoggedIn = (req, res, next) => {
+    console.log("Inside ensureLoggedIn");
+    console.log("Session user: ", req.user);
+    // console.log("Session admin: ", req.admin);
+    if(!req.user) {
+        // res.redirect('/admins/login');
+        res.send("Stay login!");
+    } else {
+        next();
+    }
+} 
+// exports.login = (req, res, next) => {
+//     console.log("Inside login method: ");
+//     console.log("req.params", req.body);
+//     const findOneAdminID = {
+//         _id: req.body.adminID
+//     };
+
+//     Admin.findOne(findOneAdminID, (err, adminData) => {
+//         if (err) {
+//             console.log("Error in finding Admin! ", err);
+//             res.status(500).send(err);
+//         }
+
+//         if (!adminData) {
+//             console.log("No such admin exists", adminData);
+//             res.send(adminData);
+//         } else {
+//             console.log("Found Admin !", adminData);
+
+//             bcrypt.compare(req.body.adminPassword, adminData.adminPassword)
+//                 .then((status) => {
+//                     if (status) {
+//                         console.log("You are a correct one!");
+//                         res.redirect('/admins');
+//                     } else {
+//                         res.send("Incorrect admin Password");
+//                     }
+//                 })
+//         }
+//     });
+// }

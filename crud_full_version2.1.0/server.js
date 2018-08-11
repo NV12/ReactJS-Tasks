@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const passport = require('passport');
+// const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
 const flash = require('connect-flash');
@@ -13,9 +14,10 @@ require('./src/utils/passport')(passport);
 app.use('/', express.static(__dirname + '/src/client/public'));
 app.use(express.static(__dirname + '/src/client'));
 
-app.use(bodyParser.urlencoded({extended: true}));
-app.use(bodyParser.json());
+// app.use(morgan('dev'));
 app.use(cookieParser());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended: true}));
 
 // Middlewares for passport
 app.use(session({secret: 'NEVER_SHARE_IT', resave: true, saveUninitialized: true}));
