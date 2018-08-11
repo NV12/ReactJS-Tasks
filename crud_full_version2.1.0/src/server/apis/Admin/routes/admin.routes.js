@@ -6,9 +6,12 @@ module.exports = (app, passport) => {
     app.use((req, res, next) => {
         if(req.originalUrl === "/admins/login") next();
         else admin.ensureLoggedIn(req, res, next);
-    })
+    });
 
-    app.get('/admins', admin.findAll);
+
+    //  How to take common word ADMINS out of all paths
+    
+    app.get('/admins/showAll', admin.findAll);
 
     app.get('/admins/logout', admin.logout);
 

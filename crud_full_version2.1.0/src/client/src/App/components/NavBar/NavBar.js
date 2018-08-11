@@ -7,6 +7,57 @@ import EmployeeOpr from '../EmployeeOpr/EmployeeOpr';
 
 class NavBar extends Component {
 
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            loggedIn: true,
+            navbarItems: []
+        }
+        this.manageNavLinks = this.manageNavLinks.bind(this);
+    }
+
+    componentDidMount() {
+        this.manageNavLinks();
+    }
+
+    componentDidUpdate() {
+        // this.manageNavLinks();
+    }
+
+    manageNavLinks() {
+        let navLinks;
+        const afterLoggedIn = ['Employees', 'Setings'];
+        const beforeLoggingIn = ['SignUp', 'Login'];
+
+        if (this.state.loggedIn) {
+            navLinks = afterLoggedIn.map((element, index) => {
+                return (
+                    <Nav key={index}>
+                        <LinkContainer to={"/" + element.toLowerCase() } >
+                            <NavItem>{element}</NavItem>
+                        </LinkContainer>
+                    </Nav>
+                )
+            })
+        } else {
+            navLinks = beforeLoggingIn.map((element, index) => {
+                return (
+                    <Nav key={index}>
+                        <LinkContainer to={"" + element.toLowerCase} >
+                            <NavItem>{element}</NavItem>
+                        </LinkContainer>
+                    </Nav>
+                );
+            })
+        }
+        console.log("NAVITEMS: ", navLinks);
+        this.setState({
+            navbarItems: navLinks
+        });
+    }
+
+
     render() {
         return (
             <div>
@@ -18,11 +69,8 @@ class NavBar extends Component {
                         <Navbar.Toggle />
                     </Navbar.Header>
                     <Navbar.Collapse>
-                        <Nav>                            
-                            <LinkContainer to="/employees" >
-                                <NavItem>Employee</NavItem>
-                            </LinkContainer>
-                        </Nav>
+                        {/* {console.log(this.state.navbarItems)} */}
+                       {this.state.navbarItems}
                     </Navbar.Collapse>
                 </Navbar>
 
