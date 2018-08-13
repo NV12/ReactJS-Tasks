@@ -64,7 +64,8 @@ exports.delete = (req, res) => {
 // Finding an Admin
 exports.findOne = (req, res) => {
     console.log("Inside admin findOne: ");
-    // console.log("findOne req: ", req);
+    console.log("findOne req.data: ", req.data);
+    console.log("findOne req.body: ", req.body);
     console.log("findOne req.params: ", req.params);
 
     const findOneAdminID = {

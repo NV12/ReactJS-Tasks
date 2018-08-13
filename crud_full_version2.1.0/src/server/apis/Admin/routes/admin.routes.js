@@ -20,9 +20,10 @@ module.exports = (app, passport) => {
     app.post('/admins/login', passport.authenticate('local-login', {
         failureRedirect: '/admins/login'}),
         function(req, res) {
-            res.redirect('/admins');
+            res.status(200).send('correct credentials!');
         });
 
+    // Find an admin
     app.get('/admins/:adminID', admin.findOne);
 
     app.put('/admins/edit/:adminID', admin.update);

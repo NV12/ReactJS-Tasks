@@ -4,9 +4,7 @@ const Admin = require('./../server/apis/Admin/models/admin.models');
 module.exports = function(passport) {
 
     console.log("Inside passport");
-
     // Saving admin id in session
-
     passport.serializeUser(function(admin, done) {
         console.log("inside serializeUser");
         console.log("admin", admin.id);
@@ -28,10 +26,10 @@ module.exports = function(passport) {
         passReqToCallback: true
     },
     function(req, adminEmail, adminPassword, done) {
-    
+        console.log("Inside local strategy: ");
         Admin.findOne({ adminEmail : adminEmail}, function(err, admin) {
-            console.log("Inside passport local-login Admin.findONe");
-            console.log("Inside passport local-login Admin.findONe admin is...", admin);
+            // console.log("Inside passport local-login Admin.findONe");
+            // console.log("Inside passport local-login Admin.findONe admin is...", admin);
             //  If there is any error before anything else
             if(err) {
                 console.log("SOME ERROR:", err);

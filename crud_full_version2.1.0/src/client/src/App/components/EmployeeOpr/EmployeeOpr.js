@@ -93,7 +93,7 @@ class EmployeeOpr extends Component {
                 })
                 .catch((err) => {
                     console.log("Err: ", err);
-                })
+                });
         }
 
     }
