@@ -3,7 +3,7 @@ const Employee = require('../models/employee.models');
 // Create new employee method
 exports.create = (req, res) => {
     console.log("Inside create");
-    // console.log("req.body", req.body);
+    console.log("req.body: ", req.body);
 
     let employee = new Employee({
         empName: req.body.empName,
@@ -43,7 +43,7 @@ exports.findAll = (req, res) => {
 //  Delete Employee method
 exports.delete = (req, res) => {
     console.log("Inside delete");
-    console.log("Delete req: ", req);
+    // console.log("Delete req: ", req);
     console.log("Delete req params: ", req.params);
 
     const deleteEmpProp = {
@@ -63,7 +63,7 @@ exports.delete = (req, res) => {
 // Finding an employee
 exports.findOne = (req, res) => {
     console.log("Inside findOne: ");
-    console.log("findOne req: ", req);
+    // console.log("findOne req: ", req);
     console.log("findOne req.params: ", req.params);
 
     const findOneEmpID = {
@@ -83,7 +83,7 @@ exports.findOne = (req, res) => {
 // Edit employee methods
 exports.update = (req, res) => {
     console.log("Inside update: ");
-    console.log("Update req: ", req);
+    console.log("Update req.body: ", req.body);
     console.log("Update req.params: ", req.params);
 
     const updateEmpProp = {

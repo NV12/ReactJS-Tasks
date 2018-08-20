@@ -3,14 +3,12 @@ const bcrypt = require('bcrypt-nodejs');
 
 exports.create = (req, res) => {
     console.log("Inside admin create", req.body);
-
+    // console.log("req.files", req.file);
+    console.log("req.params", req.params);
     let admin = new Admin();
     admin.adminEmail =  req.body.adminEmail,
     admin.adminPassword =  bcrypt.hashSync(req.body.adminPassword, bcrypt.genSaltSync(8), null)
-
-    // Creating hashed password for admin
-    // admin.adminPassword = admin.generateHash(req.body.adminPassword);
-   
+           
     /*   NOTE: We can call save method on admin bcz its an object of Admin  */
     console.log("Admin:    ", admin);
     admin.save((err, adminObj) => {
@@ -109,23 +107,17 @@ exports.update = (req, res) => {
 
 exports.logout = (req, res) => {
     console.log("Inside logout");
+    console.log("req.get('adminEmail'): ", req.get('adminEmail'));
+    console.log("req.header('adminEmail'): ", req.header('adminEmail'));
+    console.log("Request headers: ", req.headers);
+    // console.log("REQUEST OBJECT: ", req);
+    
     req.session.destroy(err => {
         console.log("Session destroyed");
         res.send('You are logged out!');
     });
 }
 
-exports.ensureLoggedIn = (req, res, next) => {
-    console.log("Inside ensureLoggedIn");
-    console.log("Session user: ", req.user);
-    // console.log("Session admin: ", req.admin);
-    if(!req.user) {
-        // res.redirect('/admins/login');
-        res.send("Stay login!");
-    } else {
-        next();
-    }
-} 
 // exports.login = (req, res, next) => {
 //     console.log("Inside login method: ");
 //     console.log("req.params", req.body);

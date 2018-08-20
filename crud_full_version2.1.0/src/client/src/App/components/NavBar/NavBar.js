@@ -1,14 +1,14 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import { Navbar, Nav, NavItem } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
-import { Route, Redirect, withRouter } from 'react-router-dom';
-import AllEmployees from '../AllEmployees/AllEmployees';
-import EmployeeOpr from '../EmployeeOpr/EmployeeOpr';
-import Login from '../Login/Login';
+import { Redirect, withRouter } from 'react-router-dom';
+// import AllEmployees from '../AllEmployees/AllEmployees';
+// import EmployeeOpr from '../EmployeeOpr/EmployeeOpr';
+// import Login from '../Login/Login';
 import './NavBar.css';
 import axios from 'axios';
 
-class NavBar extends Component {
+class NavBar extends PureComponent {
 
     constructor(props) {
         super(props);
@@ -23,32 +23,18 @@ class NavBar extends Component {
         this.navLinks = [];
     }
 
-    componentWillMount() {
-        console.log("Inside componentWillMount");
-        this.manageNavLinks();
-    }
     componentDidMount() {
-        console.log("Inside componentDidMount");
-
+        // console.log("Inside componentDidMount");
     }
 
     componentWillReceiveProps() {
-        console.log("Inside componentWillReceiveProps");
+        // console.log("Inside componentWillReceiveProps");
+        // console.log("this: ", this);
         if (this.props.history.location.state) {
             if (this.props.history.location.state.loginStatus) {
                 this.onLogin();
             }
         }
-    }
-
-    componentDidUpdate() {
-        console.log("Inside componentDidUpdate");
-        // Don't try below, otherwise it will create an infinite loop for updating render
-        // We can solve it by performing deep comparison in shouldComponentUpdate but
-        // Rather than working on such problems. avoid it by passing method which directly returns
-        // The navLinks
-        
-        // this.manageNavLinks();
     }
 
     onLogin() {
@@ -62,10 +48,23 @@ class NavBar extends Component {
 
     onLogout() {
         console.log("Inside onLogout");
-
-        axios.get('http://192.168.4.91:3000/admins/logout')
+        
+        let config = {
+            headers: {
+                'Content-Type': 'application/json',
+                'Session-Name': localStorage.getItem('adminEmail'),
+                'Session-Password': localStorage.getItem('adminPassword')
+            }
+        }
+        console.log("config: ", config);
+        axios.get('http://localhost:3000/admins/logout', config)
             .then((res) => {
                 console.log("Logged out!", res);
+
+                // Removing session info stored in localstorage
+                localStorage.removeItem('adminEmail');
+                localStorage.removeItem('adminPassword');
+                
                 window.alert("Logged out successfully!");
 
                 this.setState({
@@ -81,12 +80,16 @@ class NavBar extends Component {
 
     manageNavLinks() {
         console.log("Inside manageNavLinks");
+        console.log("this.state.loginStatus", this.state.loginStatus);
         // let navLinks;
         const navLinksAfterLoggedIn = ['Employees', 'Setings'];
         const navLinksBeforeLoggingIn = ['SignUp', 'Login'];
 
+        console.log("localStorage: ", localStorage);
+        console.log("localStorage.getItem('adminEmail')", localStorage.getItem('adminEmail'));
+        console.log("localStorage.getItem('adminEmail')==null", localStorage.getItem('adminEmail')==null);
         // If logged in then render navLinksAfterLoggedIn
-        if (this.state.loginStatus) {
+        if (localStorage.getItem('adminEmail')!==null) {
             this.navLinks = navLinksAfterLoggedIn.map((element, index) => {
                 return (
                     // Key is required to add when using array to propogate elements 
@@ -142,16 +145,12 @@ class NavBar extends Component {
                     // Showing welcome message on after login
                     (window.location.href === "http://localhost:3001/" && this.state.loginStatus) ? <h1>Welcome to Admin Portal!</h1> : null
                 }
-                {
-                    // (this.state.loginStatus) ? this.manageNavLinks(): null
-                }
-                {/* {this.props.location.state.loginStatus ? "YES": "NO"} */}
-                <Route exact path='/employees' component={AllEmployees} />
-                <Route exact path='/employees/new' component={EmployeeOpr} />
-                <Route exact path='/employees/edit/:empID' component={EmployeeOpr} />
-                <Route exact path='/login' render={() => (
+                {/* <Route exact path='/employees' component={AllEmployees} /> */}
+                {/* <Route exact path='/employees/new' component={EmployeeOpr} />
+                <Route exact path='/employees/edit/:empID' component={EmployeeOpr} /> */}
+                {/* <Route exact path='/login' render={() => (
                     <Login loginMethod={this.onLogin} />
-                )} />
+                )} /> */}
             </div>
         );
     }

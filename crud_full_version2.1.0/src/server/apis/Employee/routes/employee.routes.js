@@ -1,4 +1,4 @@
-module.exports = (app) => {
+module.exports = (app, upload) => {
     console.log("Inside employee.routes.js");
     const employee = require('../controllers/employee.controllers');
     
@@ -6,9 +6,9 @@ module.exports = (app) => {
 
     app.get('/employees/:empID', employee.findOne);
 
-    app.post('/employees/new', employee.create);
-
-    app.put('/employees/edit/:empID', employee.update);
+    app.post('/employees/new', upload.single('file'), employee.create);
+    
+    app.put('/employees/edit/:empID', upload.single('file'), employee.update);
 
     app.delete('/employees/:empID', employee.delete);
 

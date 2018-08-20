@@ -14,18 +14,28 @@ class EmployeeOpr extends Component {
 
         this.state = {
             startDate: moment(),
-            editEmployeeData: null
+            editEmployeeData: null,
+            fileData: null
         };
         this.handleDateChange = this.handleDateChange.bind(this);
         this.saveEmployee = this.saveEmployee.bind(this);
+        this.handleFileChange = this.handleFileChange.bind(this);
     }
 
     componentWillMount() {
         console.log("History Object: ", this.props.history)
         if (this.props.match.params.empID) {
             console.log("Working! ", this.props.match.params.empID);
-
-            axios.get('http://192.168.4.91:3000/employees/' + this.props.match.params.empID)
+            // axios.defaults.withCredentials = true;
+            let config = {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Session-Name': localStorage.getItem('adminEmail'),
+                    'Session-Password': localStorage.getItem('adminPassword')
+                }
+            }
+            console.log("config: ", config);
+            axios.get('http://localhost:3000/employees/' + this.props.match.params.empID, config)
                 .then((res) => {
                     console.log("editEmployeeData: ", res);
 
@@ -58,18 +68,48 @@ class EmployeeOpr extends Component {
         });
     }
 
+    onDrop(acceptedFiles, rejectedFiles) {
+        console.log("accpted files: ", acceptedFiles);
+        console.log("rejected files: ", rejectedFiles);
+        this.uploadedFile = acceptedFiles[0];
+    }
+
+    handleFileChange(event) {
+        console.log("Event:event.target.files[0] ", event.target.files[0]);
+        const newFile = event.target.files[0];
+        this.setState({
+            fileData: newFile
+        });
+    }
+
     saveEmployee(event) {
         event.preventDefault();
 
+        // if empID exists, edit employee
+        // else create new emp
+        const empData = new FormData();
+
+        empData.append('empName', event.target[0].value);
+        empData.append('email', event.target[1].value);
+        empData.append('empID', event.target[2].value);
+        empData.append('dob', event.target[3].value);
+        empData.append('file', this.state.fileData);
+        
+        let axiosHeaders = {
+            'Content-Type': 'multipart/form-data',
+            'Session-Name': localStorage.getItem('adminEmail'),
+            'Session-Password': localStorage.getItem('adminPassword')
+        };
+
+        // Edit employee method
         if (this.props.match.params.empID) {
             console.log("Inside saveEmp", this.props.match.params.empID);
 
-            // Sending edited Employee to database
-            axios.put('http://192.168.4.91:3000/employees/edit/' + this.props.match.params.empID, {
-                empName: event.target[0].value,
-                email: event.target[1].value,
-                empID: event.target[2].value,
-                dob: event.target[3].value
+            axios({
+                method: 'put',
+                url: 'http://localhost:3000/employees/edit/' + this.props.match.params.empID,
+                data: empData,
+                headers: axiosHeaders
             })
                 .then((res) => {
                     console.log("Editing res: ", res);
@@ -79,13 +119,21 @@ class EmployeeOpr extends Component {
                     console.log("Err: ", err);
                 });
 
-        } else {
+        } else {    //New emp method
 
-            axios.post('http://192.168.4.91:3000/employees/new', {
-                empName: event.target[0].value,
-                email: event.target[1].value,
-                empID: event.target[2].value,
-                dob: event.target[3].value
+            // Creating new emp from form data
+
+            /* THIS METHOD DOESN'T WORK!!!! FormData() */
+            /* DUDE! THIS METHOD DOES WORK!!!! I just don't know how o_0 */
+            /* It works bcz file type in form in an uncontrolled component, we need to use handler for handling form */
+
+            console.log("I am FormData", empData); //And I know, you are empty..... in console 
+
+            axios({
+                method: 'post',
+                url: 'http://localhost:3000/employees/new',
+                data: empData,
+                headers: axiosHeaders
             })
                 .then((res) => {
                     console.log("Adding Res: ", res);
@@ -139,6 +187,13 @@ class EmployeeOpr extends Component {
                                 defaultValue={this.state.editEmployeeData ? this.state.editEmployeeData.dob : null}
                                 required
                             />
+                        </Col>
+                    </FormGroup>
+
+                    <FormGroup controlId="formHorizontalEmail">
+                        <Col componentClass={ControlLabel} sm={2}>Photo</Col>
+                        <Col sm={6}>
+                            <FormControl type="file" onChange={this.handleFileChange} required />
                         </Col>
                     </FormGroup>
 

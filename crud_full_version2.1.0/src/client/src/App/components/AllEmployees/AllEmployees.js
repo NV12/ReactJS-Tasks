@@ -25,8 +25,17 @@ class AllEmployees extends PureComponent {
 
     fetchEmployees() {
         console.log("Inside fetchEmployees");
-
-        axios.get('http://192.168.4.91:3000/employees')
+        console.log("Localstorage: ", localStorage);
+        // axios.defaults.withCredentials = true;
+        let config = {
+            headers: {
+                'Content-Type': 'application/json',
+                'Session-Name': localStorage.getItem('adminEmail'),
+                'Session-Password': localStorage.getItem('adminPassword')
+            }
+        }
+        console.log("config: ", config);
+        axios.get('http://localhost:3000/employees', config)
             .then((res) => {
                 console.log("All Employees: ", res);
 
@@ -51,7 +60,16 @@ class AllEmployees extends PureComponent {
     removeEmployee(empIndex, event) {
 
         console.log("Inside removeEmployee");
-        axios.delete('http://192.168.4.91:3000/employees/' + empIndex)
+        let config = {
+            headers: {
+                'Content-Type': 'application/json',
+                'Session-Name': localStorage.getItem('adminEmail'),
+                'Session-Password': localStorage.getItem('adminPassword')
+            }
+        }
+        console.log("config: ", config);
+
+        axios.delete('http://localhost:3000/employees/' + empIndex, config)
             .then((res) => {
                 console.log("Inside delete res: ", res);
                 this.fetchEmployees();

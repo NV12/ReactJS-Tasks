@@ -28,8 +28,6 @@ module.exports = function(passport) {
     function(req, adminEmail, adminPassword, done) {
         console.log("Inside local strategy: ");
         Admin.findOne({ adminEmail : adminEmail}, function(err, admin) {
-            // console.log("Inside passport local-login Admin.findONe");
-            // console.log("Inside passport local-login Admin.findONe admin is...", admin);
             //  If there is any error before anything else
             if(err) {
                 console.log("SOME ERROR:", err);

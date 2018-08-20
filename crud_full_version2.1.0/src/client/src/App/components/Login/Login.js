@@ -33,18 +33,26 @@ class Login extends Component {
             adminPassword: event.target[1].value
         };
         console.log("Form data: ", bodyFormData);
-
+        // axios.defaults.withCredentials = true;
         axios({
             method: 'post',
-            url: 'http://192.168.4.91:3000/admins/login',
-            // url: 'localhost:3000/admins/login',
+            // url: 'http://192.168.5.16:3000/admins/login',
+            // withCredentials: true,
+            url: 'http://localhost:3000/admins/login',
             data: bodyFormData,
             config: { headers: { 'Content-Type': 'multipart/form-data' } }
         })
             .then((res) => {
                 console.log("Yeah!", res);
-                console.log("props: ", this.props.loginStatus);
+                // console.log("props: ", this.props.loginStatus);
                 // this.props.loginStatus = true;
+
+                /* Check this for more than one login  */
+                console.log("Before: localStorage: ", localStorage);
+                localStorage.setItem("adminEmail", res.data.adminEmail);
+                localStorage.setItem("adminPassword", res.data.adminPassword);
+                console.log("After: localStorage: ", localStorage);
+                
                 this.props.history.push({
                     pathname: '/',
                     state: { loginStatus: true }
@@ -72,7 +80,7 @@ class Login extends Component {
                         <FormControl type="password" required />
                     </FormGroup>
                     {/* <FormGroup> */}
-                    <Button block bsSize="large" type="submit">
+                    <Button style={{marginLeft: "0"}}  block bsSize="large" type="submit">
                         Login
                     </Button>
                     {/* </FormGroup> */}
