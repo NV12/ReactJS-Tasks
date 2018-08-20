@@ -87,7 +87,8 @@ class NavBar extends PureComponent {
 
         console.log("localStorage: ", localStorage);
         console.log("localStorage.getItem('adminEmail')", localStorage.getItem('adminEmail'));
-        console.log("localStorage.getItem('adminEmail')==null", localStorage.getItem('adminEmail')==null);
+        console.log("localStorage.getItem('adminEmail')==null", localStorage.getItem('adminEmail')!==null);
+        
         // If logged in then render navLinksAfterLoggedIn
         if (localStorage.getItem('adminEmail')!==null) {
             this.navLinks = navLinksAfterLoggedIn.map((element, index) => {

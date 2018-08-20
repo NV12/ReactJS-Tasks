@@ -8,13 +8,19 @@ import Redirect from 'react-router-dom/Redirect';
 
 class Routes extends Component {
 
-    isAuthenticated() {
-        console.log("Inside requireAuth");
-        console.log("localStorage.getItem('adminEmail')", localStorage.getItem('adminEmail'));
-        if (localStorage.getItem('adminEmail')) return true
+    isAuthenticated(props, NewComponent) {
+        console.log("Inside isAuthenticated");
+        
+        if (localStorage.getItem('adminEmail')) {
+            return (
+                <NewComponent {...props} />
+            )
+        }
         else {
             window.alert("Dude! Login first...!")
-            return false;
+            return (
+                <Redirect to="/login"/>
+            );
         }
     }
 
@@ -28,27 +34,15 @@ class Routes extends Component {
                         <Switch>
                             
                             <Route exact path='/employees' render={(props) => (
-                                this.isAuthenticated() ? (
-                                    <AllEmployees {...props}/>
-                                ) : (
-                                    <Redirect to="/login"/>
-                                )
+                                this.isAuthenticated(props, AllEmployees)
                             )} />
                             
                             <Route exact path='/employees/new' render={(props) => (
-                                this.isAuthenticated() ? (
-                                    <EmployeeOpr {...props}/>
-                                ) : (
-                                    <Redirect to="/login"/>
-                                )
+                                this.isAuthenticated(props, EmployeeOpr)
                             )}  />
                             
                             <Route exact path='/employees/edit/:empID' render={(props) => (
-                                this.isAuthenticated() ? (
-                                    <EmployeeOpr {...props}/>
-                                ) : (
-                                    <Redirect to="/login"/>
-                                )
+                                this.isAuthenticated(props, EmployeeOpr)
                             )} />
 
                             <Route exact path='/login' render={() => (
