@@ -1,15 +1,20 @@
 const Employee = require('../models/employee.models');
+const fs = require('fs');
+
 
 // Create new employee method
 exports.create = (req, res) => {
     console.log("Inside create");
     console.log("req.body: ", req.body);
+    console.log("req.file: ", req.file);
+    console.log("req.fie.filename: ", req.file.filename);
 
     let employee = new Employee({
         empName: req.body.empName,
         email: req.body.email,
         empID: req.body.empID,
-        dob: req.body.dob
+        dob: req.body.dob,
+        imgName: req.file.filename
     });
 
     /*   NOTE: We can call save method on employee bcz its an object of Employee  */
@@ -55,6 +60,12 @@ exports.delete = (req, res) => {
             res.status(500).send(err);
         } else {
             console.log("Employee deleted successfully!", emp);
+            console.log("__dirname", __dirname + "/../../../../client/public/");
+            // fs.unlink('./../../../../client/public/'+ emp.imgName, (err) => {
+            //     if (err) throw err;
+            //     console.log('successfully deleted /tmp/hello');
+            // });
+
             res.send(emp);
         }
     });
@@ -85,6 +96,7 @@ exports.update = (req, res) => {
     console.log("Inside update: ");
     console.log("Update req.body: ", req.body);
     console.log("Update req.params: ", req.params);
+    console.log("Update req.file", req.file);
 
     const updateEmpProp = {
             empID: req.params.empID
@@ -94,7 +106,13 @@ exports.update = (req, res) => {
             email: req.body.email,
             empID: req.body.empID,
             dob: req.body.dob
+            // imgName: req.file.filename
         };
+
+    if(req.body.nofile)   newEmp.imgName = req.body.fileName;
+    else newEmp.imgName = req.file.filename;
+
+    console.log("newEmp.imgName", newEmp.imgName);
 
     Employee.findOneAndUpdate(updateEmpProp, newEmp, (err, emp) => {
         if(err) {

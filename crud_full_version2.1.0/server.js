@@ -30,7 +30,9 @@ require('./src/utils/passport')(passport);
 
 // Serving static files
 app.use('/', express.static(__dirname + '/src/client/public'));
-app.use(express.static(__dirname + '/src/client'));
+// app.use(express.static(__dirname + '/src/client'));
+// console.log()
+// app.use(express.static(__dirname + '/files'));
 app.use(cookieParser());
 
 // Limiting request size to 200mb(which includes the data being set with theh request)
@@ -68,7 +70,7 @@ app.use(function (req, res, next) {
 // Configuring multer
 const storage = multer.diskStorage({
     destination: function (req, file, callback) {
-        callback(null, __dirname+'/files');
+        callback(null, __dirname+'/src/client/public');
       },
     filename: function(req, file, callback) {
         // console.log("Inside multer config: req: ", req);

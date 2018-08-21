@@ -20,6 +20,11 @@ const employeeSchema = new mongoose.Schema({
         type: String,
         required: true,
         unique: false
+    },
+    imgName: {
+        type: String,
+        required: true,
+        unique: true
     }
 });
 

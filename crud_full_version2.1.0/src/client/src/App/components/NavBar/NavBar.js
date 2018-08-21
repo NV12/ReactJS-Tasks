@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import { Navbar, Nav, NavItem } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
 import { Redirect, withRouter } from 'react-router-dom';
@@ -8,7 +8,7 @@ import { Redirect, withRouter } from 'react-router-dom';
 import './NavBar.css';
 import axios from 'axios';
 
-class NavBar extends PureComponent {
+class NavBar extends Component {
 
     constructor(props) {
         super(props);
@@ -16,6 +16,7 @@ class NavBar extends PureComponent {
         this.state = {
             // For showing the navbar links when user is logged in
             loginStatus: false
+            // navbarItems: null
         }
         this.manageNavLinks = this.manageNavLinks.bind(this);
         this.onLogin = this.onLogin.bind(this);
@@ -25,6 +26,7 @@ class NavBar extends PureComponent {
 
     componentDidMount() {
         // console.log("Inside componentDidMount");
+        // this.manageNavLinks();
     }
 
     componentWillReceiveProps() {
@@ -37,8 +39,12 @@ class NavBar extends PureComponent {
         }
     }
 
+    componentDidUpdate() {
+        // this.manageNavLinks();
+    }
+
     onLogin() {
-        console.log("Inside onLogin");
+        // console.log("Inside onLogin");
         window.alert("Logged in successfully!");
         this.setState({
             loginStatus: true
@@ -47,8 +53,8 @@ class NavBar extends PureComponent {
     }
 
     onLogout() {
-        console.log("Inside onLogout");
-        
+        // console.log("Inside onLogout");
+
         let config = {
             headers: {
                 'Content-Type': 'application/json',
@@ -56,41 +62,43 @@ class NavBar extends PureComponent {
                 'Session-Password': localStorage.getItem('adminPassword')
             }
         }
-        console.log("config: ", config);
+        // console.log("config: ", config);
         axios.get('http://localhost:3000/admins/logout', config)
             .then((res) => {
-                console.log("Logged out!", res);
+                // console.log("Logged out!", res);
 
                 // Removing session info stored in localstorage
                 localStorage.removeItem('adminEmail');
                 localStorage.removeItem('adminPassword');
-                
+
                 window.alert("Logged out successfully!");
 
                 this.setState({
                     loginStatus: false
                 });
-
+                // this.manageNavLinks();
                 return <Redirect to='/login' />
             })
             .catch((err) => {
-                console.log("Error: ", err);
+                // console.log("Error: ", err);
             })
     }
 
     manageNavLinks() {
-        console.log("Inside manageNavLinks");
-        console.log("this.state.loginStatus", this.state.loginStatus);
+        // console.log("Inside manageNavLinks");
+        // console.log("this.state.loginStatus", this.state.loginStatus);
         // let navLinks;
-        const navLinksAfterLoggedIn = ['Employees', 'Setings'];
-        const navLinksBeforeLoggingIn = ['SignUp', 'Login'];
+        const navLinksAfterLoggedIn = ['Employees', 'Settings'];
+        const navLinksBeforeLoggingIn = ['Login'];
 
-        console.log("localStorage: ", localStorage);
-        console.log("localStorage.getItem('adminEmail')", localStorage.getItem('adminEmail'));
-        console.log("localStorage.getItem('adminEmail')==null", localStorage.getItem('adminEmail')!==null);
-        
+        // console.log("localStorage: ", localStorage);
+        // console.log("localStorage.getItem('adminEmail')", localStorage.getItem('adminEmail'));
+        // console.log("localStorage.getItem('adminEmail')==null", localStorage.getItem('adminEmail') !== null);
+
         // If logged in then render navLinksAfterLoggedIn
-        if (localStorage.getItem('adminEmail')!==null) {
+        // if (this.state.loginStatus) {
+        if (localStorage.getItem('adminEmail')) {
+            // console.log("Logged in links");
             this.navLinks = navLinksAfterLoggedIn.map((element, index) => {
                 return (
                     // Key is required to add when using array to propogate elements 
@@ -109,6 +117,7 @@ class NavBar extends PureComponent {
                 </Nav>
             ));
         } else {
+            // console.log("Logged out in links");
             this.navLinks = navLinksBeforeLoggingIn.map((element, index) => {
                 return (
                     <Nav key={index} pullRight>
@@ -119,11 +128,11 @@ class NavBar extends PureComponent {
                 );
             })
         }
-        console.log("NAVITEMS: ", this.navLinks);
+        // console.log("NAVITEMS: ", this.navLinks);
 
         return this.navLinks;
         // this.setState({
-        //     navbarItems: navLinks
+        //     navbarItems: this.navLinks
         // });
     }
 
@@ -134,24 +143,22 @@ class NavBar extends PureComponent {
                 <Navbar inverse collapseOnSelect>
                     <Navbar.Header>
                         <Navbar.Brand>
-                            <a href="#brand">Admin Panel</a>
+                            <LinkContainer to="/" >
+                                <a href="/">Admin Panel</a>
+                            </LinkContainer>
                         </Navbar.Brand>
                         <Navbar.Toggle />
                     </Navbar.Header>
                     <Navbar.Collapse>
                         {this.manageNavLinks()}
+                        {/* {this.state.navbarItems} */}
                     </Navbar.Collapse>
                 </Navbar>
                 {
                     // Showing welcome message on after login
-                    (window.location.href === "http://localhost:3001/" && this.state.loginStatus) ? <h1>Welcome to Admin Portal!</h1> : null
+                    // (window.location.href === "http://localhost:3001/" ) ? <h1>Welcome to Admin Portal!</h1> : null
                 }
-                {/* <Route exact path='/employees' component={AllEmployees} /> */}
-                {/* <Route exact path='/employees/new' component={EmployeeOpr} />
-                <Route exact path='/employees/edit/:empID' component={EmployeeOpr} /> */}
-                {/* <Route exact path='/login' render={() => (
-                    <Login loginMethod={this.onLogin} />
-                )} /> */}
+
             </div>
         );
     }

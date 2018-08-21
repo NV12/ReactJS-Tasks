@@ -15,7 +15,9 @@ class EmployeeOpr extends Component {
         this.state = {
             startDate: moment(),
             editEmployeeData: null,
-            fileData: null
+            fileData: null,
+            file: null,
+            fileName: null
         };
         this.handleDateChange = this.handleDateChange.bind(this);
         this.saveEmployee = this.saveEmployee.bind(this);
@@ -25,8 +27,8 @@ class EmployeeOpr extends Component {
     componentWillMount() {
         console.log("History Object: ", this.props.history)
         if (this.props.match.params.empID) {
-            console.log("Working! ", this.props.match.params.empID);
-            // axios.defaults.withCredentials = true;
+            
+            // Setting the headers for the axios request
             let config = {
                 headers: {
                     'Content-Type': 'application/json',
@@ -34,7 +36,7 @@ class EmployeeOpr extends Component {
                     'Session-Password': localStorage.getItem('adminPassword')
                 }
             }
-            console.log("config: ", config);
+            
             axios.get('http://localhost:3000/employees/' + this.props.match.params.empID, config)
                 .then((res) => {
                     console.log("editEmployeeData: ", res);
@@ -43,12 +45,15 @@ class EmployeeOpr extends Component {
                         empName: res.data.empName,
                         email: res.data.email,
                         empID: res.data.empID,
-                        dob: res.data.dob
+                        dob: res.data.dob,
+                        imgName: res.data.imgName
                     };
 
                     this.setState({
-                        editEmployeeData: empData
-                    });
+                        editEmployeeData: empData,
+                        fileName: res.data.imgName
+                    });                
+
                 })
                 .catch((err) => {
                     console.log("editEmployeeData error: ", err);
@@ -68,18 +73,25 @@ class EmployeeOpr extends Component {
         });
     }
 
-    onDrop(acceptedFiles, rejectedFiles) {
-        console.log("accpted files: ", acceptedFiles);
-        console.log("rejected files: ", rejectedFiles);
-        this.uploadedFile = acceptedFiles[0];
-    }
-
     handleFileChange(event) {
         console.log("Event:event.target.files[0] ", event.target.files[0]);
         const newFile = event.target.files[0];
-        this.setState({
-            fileData: newFile
-        });
+
+        //  Make changes in file only if file is changed not when it is empty
+        if (newFile) {
+            console.log("File is changed: ")
+            this.setState({
+                fileData: newFile,
+                file: URL.createObjectURL(newFile)
+            });
+        } else {    
+            // Removing the file from image if user cancels the upload
+            console.log("File is not changed: ")
+            this.setState({
+                fileData: newFile,
+                file: null
+            });
+        }
     }
 
     saveEmployee(event) {
@@ -93,8 +105,19 @@ class EmployeeOpr extends Component {
         empData.append('email', event.target[1].value);
         empData.append('empID', event.target[2].value);
         empData.append('dob', event.target[3].value);
-        empData.append('file', this.state.fileData);
         
+        // Append file in empData, only if it is changed
+        if(this.state.fileData) {
+            // console.log("File data exists!");
+            empData.append('file', this.state.fileData);
+            empData.append('fileName', this.state.fileData.name);
+        } else {
+            // console.log("File data does not exist!");
+            empData.append('nofile', true);
+            empData.append('fileName', this.state.fileName);
+        }
+        
+        // Setting the headers for the axios request        
         let axiosHeaders = {
             'Content-Type': 'multipart/form-data',
             'Session-Name': localStorage.getItem('adminEmail'),
@@ -103,7 +126,7 @@ class EmployeeOpr extends Component {
 
         // Edit employee method
         if (this.props.match.params.empID) {
-            console.log("Inside saveEmp", this.props.match.params.empID);
+            console.log("Inside edit employee method");
 
             axios({
                 method: 'put',
@@ -113,22 +136,23 @@ class EmployeeOpr extends Component {
             })
                 .then((res) => {
                     console.log("Editing res: ", res);
+                    window.alert("Employee updated successfully!");
                     this.props.history.push({ pathname: '/employees' });
                 })
                 .catch((err) => {
+                    window.alert("Error in updating employee!");
                     console.log("Err: ", err);
                 });
 
         } else {    //New emp method
-
             // Creating new emp from form data
 
             /* THIS METHOD DOESN'T WORK!!!! FormData() */
             /* DUDE! THIS METHOD DOES WORK!!!! I just don't know how o_0 */
             /* It works bcz file type in form in an uncontrolled component, we need to use handler for handling form */
 
-            console.log("I am FormData", empData); //And I know, you are empty..... in console 
-
+            console.log("Inside new employee method");
+            
             axios({
                 method: 'post',
                 url: 'http://localhost:3000/employees/new',
@@ -137,10 +161,12 @@ class EmployeeOpr extends Component {
             })
                 .then((res) => {
                     console.log("Adding Res: ", res);
+                    window.alert("Employee added successfully!");
                     this.props.history.push({ pathname: '/employees' });
                 })
                 .catch((err) => {
                     console.log("Err: ", err);
+                    window.alert("Error in creating new employee!");
                 });
         }
 
@@ -193,7 +219,16 @@ class EmployeeOpr extends Component {
                     <FormGroup controlId="formHorizontalEmail">
                         <Col componentClass={ControlLabel} sm={2}>Photo</Col>
                         <Col sm={6}>
-                            <FormControl type="file" onChange={this.handleFileChange} required />
+                            <FormControl
+                                type="file"
+                                onChange={this.handleFileChange}
+                                required= {window.location.href === "http://localhost:3001/employees/new" ? true : false}                            
+                            />
+                            {/* <img src={this.state.file} alt=""  /> */}
+                            {console.log("this.state.file", this.state.file)}
+                            {console.log("this.state.fileName", this.state.fileName)}
+                            <img src={ this.state.file == null ? "/" + this.state.fileName : this.state.file } name="myImg" alt="" />
+
                         </Col>
                     </FormGroup>
 
