@@ -5,6 +5,7 @@ import './Employee.css';
 import { ButtonToolbar, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+import withRouter from 'react-router-dom/withRouter';
 
 class AllEmployees extends PureComponent {
     constructor(props) {
@@ -25,7 +26,7 @@ class AllEmployees extends PureComponent {
 
     fetchEmployees() {
         console.log("Inside fetchEmployees");
-        console.log("Localstorage: ", localStorage);
+        // console.log("Localstorage: ", localStorage);
         // axios.defaults.withCredentials = true;
         let config = {
             headers: {
@@ -34,7 +35,7 @@ class AllEmployees extends PureComponent {
                 'Session-Password': localStorage.getItem('adminPassword')
             }
         }
-        console.log("config: ", config);
+        // console.log("config: ", config);
         axios.get('http://localhost:3000/employees', config)
             .then((res) => {
                 console.log("All Employees: ", res);
@@ -80,6 +81,7 @@ class AllEmployees extends PureComponent {
     }
 
     render() {
+        console.log("Inside all employee render!", this.state.employeeList);
         const Employees = this.state.employeeList.map((emp, id) => {
             return (
                 <tr key={id}>
@@ -130,4 +132,4 @@ class AllEmployees extends PureComponent {
     }
 }
 
-export default AllEmployees;
+export default withRouter(AllEmployees);

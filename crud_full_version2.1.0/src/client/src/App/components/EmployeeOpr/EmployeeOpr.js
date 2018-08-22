@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import DatePicker from 'react-datepicker';
 import moment from 'moment';
 import { withRouter } from 'react-router-dom';
@@ -7,7 +7,7 @@ import { Form, FormGroup, FormControl, Col, ControlLabel, Button } from './../..
 import 'react-datepicker/dist/react-datepicker.css';
 import './EmployeeOpr.css';
 
-class EmployeeOpr extends Component {
+class EmployeeOpr extends PureComponent {
 
     constructor(props) {
         super(props);
@@ -25,7 +25,7 @@ class EmployeeOpr extends Component {
     }
 
     componentWillMount() {
-        console.log("History Object: ", this.props.history)
+        console.log("History Object: ", this.props)
         if (this.props.match.params.empID) {
             
             // Setting the headers for the axios request
@@ -37,6 +37,7 @@ class EmployeeOpr extends Component {
                 }
             }
             
+            // Filling the form with data of employee to be updated
             axios.get('http://localhost:3000/employees/' + this.props.match.params.empID, config)
                 .then((res) => {
                     console.log("editEmployeeData: ", res);
@@ -62,6 +63,7 @@ class EmployeeOpr extends Component {
     }
 
     componentWillUnmount() {
+        console.log("Inside componentWillUnmount!111111111111111111111111111111111");
         this.setState({
             editEmployeeData: null
         });
@@ -96,7 +98,7 @@ class EmployeeOpr extends Component {
 
     saveEmployee(event) {
         event.preventDefault();
-
+        console.log("Inside saveEmployee");
         // if empID exists, edit employee
         // else create new emp
         const empData = new FormData();
@@ -111,6 +113,7 @@ class EmployeeOpr extends Component {
             // console.log("File data exists!");
             empData.append('file', this.state.fileData);
             empData.append('fileName', this.state.fileData.name);
+            empData.append('oldFileName', this.state.fileName);
         } else {
             // console.log("File data does not exist!");
             empData.append('nofile', true);
@@ -222,7 +225,8 @@ class EmployeeOpr extends Component {
                             <FormControl
                                 type="file"
                                 onChange={this.handleFileChange}
-                                required= {window.location.href === "http://localhost:3001/employees/new" ? true : false}                            
+                                required= {window.location.href === "http://localhost:3001/employees/new" ? true : false}
+                                accept="image/*"
                             />
                             {/* <img src={this.state.file} alt=""  /> */}
                             {console.log("this.state.file", this.state.file)}

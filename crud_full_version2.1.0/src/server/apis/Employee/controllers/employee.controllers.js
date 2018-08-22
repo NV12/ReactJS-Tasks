@@ -1,13 +1,13 @@
 const Employee = require('../models/employee.models');
 const fs = require('fs');
-
+const path = require('path');
 
 // Create new employee method
 exports.create = (req, res) => {
     console.log("Inside create");
     console.log("req.body: ", req.body);
     console.log("req.file: ", req.file);
-    console.log("req.fie.filename: ", req.file.filename);
+    console.log("req.file.filename: ", req.file.filename);
 
     let employee = new Employee({
         empName: req.body.empName,
@@ -22,9 +22,20 @@ exports.create = (req, res) => {
     employee.save((err, emp) => {
         if (err) {
             console.log("Error: ", err);
+
+            // Deleting the file came with new employee request
+            fs.unlink(path.join(__dirname, '../../../../client/public', req.file.filename), (err) => {
+                if (err) {
+                    console.log("Error in deleting file: ", err);
+                    res.status(500).send(err);
+                }                
+                console.log('successfully deleted ');
+            });
+
+            console.log("Error in creating new employee: ", err);
             res.status(500).send(err)
         } else {
-            console.log("employee: ", emp);
+            console.log("employee created successfully!: ", emp);
             res.send(emp);
         }
     });
@@ -48,7 +59,6 @@ exports.findAll = (req, res) => {
 //  Delete Employee method
 exports.delete = (req, res) => {
     console.log("Inside delete");
-    // console.log("Delete req: ", req);
     console.log("Delete req params: ", req.params);
 
     const deleteEmpProp = {
@@ -60,11 +70,15 @@ exports.delete = (req, res) => {
             res.status(500).send(err);
         } else {
             console.log("Employee deleted successfully!", emp);
-            console.log("__dirname", __dirname + "/../../../../client/public/");
-            // fs.unlink('./../../../../client/public/'+ emp.imgName, (err) => {
-            //     if (err) throw err;
-            //     console.log('successfully deleted /tmp/hello');
-            // });
+
+            /* Deleting empImage file from public folder */
+            fs.unlink(path.join(__dirname, '../../../../client/public', emp.imgName), (err) => {
+                if (err) {
+                    console.log("Error in removing file: ", err);
+                    res.status(500).send(err);
+                }
+                console.log('successfully deleted file');
+            });
 
             res.send(emp);
         }
@@ -74,14 +88,13 @@ exports.delete = (req, res) => {
 // Finding an employee
 exports.findOne = (req, res) => {
     console.log("Inside findOne: ");
-    // console.log("findOne req: ", req);
     console.log("findOne req.params: ", req.params);
 
     const findOneEmpID = {
         empID: req.params.empID
     };
     Employee.findOne(findOneEmpID, (err, emp) => {
-        if(err) {
+        if (err) {
             console.log("FindOne Error: ", err);
             res.status(500).send(err);
         } else {
@@ -99,23 +112,34 @@ exports.update = (req, res) => {
     console.log("Update req.file", req.file);
 
     const updateEmpProp = {
-            empID: req.params.empID
-        },
+        empID: req.params.empID
+    },
         newEmp = {
             empName: req.body.empName,
             email: req.body.email,
             empID: req.body.empID,
             dob: req.body.dob
-            // imgName: req.file.filename
         };
 
-    if(req.body.nofile)   newEmp.imgName = req.body.fileName;
-    else newEmp.imgName = req.file.filename;
+    // if file is not updated, use older one as original
+    if (req.body.nofile) newEmp.imgName = req.body.fileName;
+    else { 
+        newEmp.imgName = req.file.filename; 
+    
+        // delete the older file
+        fs.unlink(path.join(__dirname, '../../../../client/public', req.body.oldFileName), (err) => {
+            if (err) {
+                console.log("Error in changing file: ", err);
+                res.status(500).send(err);
+            }
+            console.log('successfully deleted old file');
+        });
+    }
 
     console.log("newEmp.imgName", newEmp.imgName);
 
     Employee.findOneAndUpdate(updateEmpProp, newEmp, (err, emp) => {
-        if(err) {
+        if (err) {
             console.log("Update Error: ", err);
             res.status(500).send(err);
         } else {
