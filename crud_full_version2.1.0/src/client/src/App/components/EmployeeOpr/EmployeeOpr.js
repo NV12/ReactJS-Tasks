@@ -15,9 +15,16 @@ class EmployeeOpr extends PureComponent {
         this.state = {
             startDate: moment(),
             editEmployeeData: null,
-            fileData: null,
-            file: null,
-            fileName: null
+            fileData: null, // for storing file that is being uploaded
+            file: null,     //for showing image that is being changed
+            fileName: null,  //For storing file name of employee being edited
+            formValidation: {
+                "empName": null,
+                "email": null,
+                "empID": null,
+                "dob": null,
+                "file": null
+            }
         };
         this.handleDateChange = this.handleDateChange.bind(this);
         this.saveEmployee = this.saveEmployee.bind(this);
@@ -27,7 +34,7 @@ class EmployeeOpr extends PureComponent {
     componentWillMount() {
         console.log("History Object: ", this.props)
         if (this.props.match.params.empID) {
-            
+
             // Setting the headers for the axios request
             let config = {
                 headers: {
@@ -36,7 +43,7 @@ class EmployeeOpr extends PureComponent {
                     'Session-Password': localStorage.getItem('adminPassword')
                 }
             }
-            
+
             // Filling the form with data of employee to be updated
             axios.get('http://localhost:3000/employees/' + this.props.match.params.empID, config)
                 .then((res) => {
@@ -53,7 +60,7 @@ class EmployeeOpr extends PureComponent {
                     this.setState({
                         editEmployeeData: empData,
                         fileName: res.data.imgName
-                    });                
+                    });
 
                 })
                 .catch((err) => {
@@ -63,7 +70,8 @@ class EmployeeOpr extends PureComponent {
     }
 
     componentWillUnmount() {
-        console.log("Inside componentWillUnmount!111111111111111111111111111111111");
+        console.log("Inside componentWillUnmount!");
+        // window.alert("YO!");
         this.setState({
             editEmployeeData: null
         });
@@ -78,27 +86,94 @@ class EmployeeOpr extends PureComponent {
     handleFileChange(event) {
         console.log("Event:event.target.files[0] ", event.target.files[0]);
         const newFile = event.target.files[0];
-
+        let validateFieldsData = this.state.formValidation;
         //  Make changes in file only if file is changed not when it is empty
         if (newFile) {
             console.log("File is changed: ")
+            
+            validateFieldsData.file = null;
             this.setState({
                 fileData: newFile,
-                file: URL.createObjectURL(newFile)
+                file: URL.createObjectURL(newFile),
+                formValidation: validateFieldsData
             });
-        } else {    
+        } else {
             // Removing the file from image if user cancels the upload
             console.log("File is not changed: ")
+
+            // Image can be accepted as empty if it is edit page
+            if(window.location.href === "http://localhost:3001/employees/new") {
+                validateFieldsData.file = "Image can't be empty"
+            } else {
+                validateFieldsData.file = null;
+            }
+            
             this.setState({
                 fileData: newFile,
-                file: null
+                file: null,
+                formValidation: validateFieldsData
             });
         }
     }
 
+    validateFields(event) {
+        console.log("Inside validateFields");
+        
+        const errorMessage = {
+            "empName": null,
+            "email": null,
+            "empID": null,
+            "dob": null,
+            "file": null
+        }
+        let validateStatus = true;
+
+        // console.log("event.empName.value", event.empName.value);
+        if(!event.empName.value) {
+            console.log("empName is null");
+            errorMessage.empName = "Name can't be empty";
+            validateStatus = false;
+        }
+
+        if(!event.email.value) {
+            console.log("email is null");
+            errorMessage.email = "Email can't be empty";
+            validateStatus = false;
+        }
+
+        if(!event.empID.value) {
+            console.log("empID is null");
+            errorMessage.empID = "ID can't be empty"
+            validateStatus = false;
+        }
+
+        if(!event.dob.value) {
+            console.log("dob is null");
+            errorMessage.dob = "Date of birth can't be empty"
+            validateStatus = false;
+        }
+
+        // Image is required for new employee not for edit employee
+        if(window.location.href === "http://localhost:3001/employees/new" && !this.state.fileData) {
+            console.log("Image is null");
+            errorMessage.dob = "Image can't be empty"
+            validateStatus = false;
+        }
+
+        this.setState({
+            formValidation: errorMessage
+        });
+
+        return validateStatus;
+    }
+
+
     saveEmployee(event) {
         event.preventDefault();
         console.log("Inside saveEmployee");
+
+        if (!this.validateFields(event.target)) return;
+
         // if empID exists, edit employee
         // else create new emp
         const empData = new FormData();
@@ -107,9 +182,9 @@ class EmployeeOpr extends PureComponent {
         empData.append('email', event.target[1].value);
         empData.append('empID', event.target[2].value);
         empData.append('dob', event.target[3].value);
-        
+
         // Append file in empData, only if it is changed
-        if(this.state.fileData) {
+        if (this.state.fileData) {
             // console.log("File data exists!");
             empData.append('file', this.state.fileData);
             empData.append('fileName', this.state.fileData.name);
@@ -119,7 +194,7 @@ class EmployeeOpr extends PureComponent {
             empData.append('nofile', true);
             empData.append('fileName', this.state.fileName);
         }
-        
+
         // Setting the headers for the axios request        
         let axiosHeaders = {
             'Content-Type': 'multipart/form-data',
@@ -143,7 +218,7 @@ class EmployeeOpr extends PureComponent {
                     this.props.history.push({ pathname: '/employees' });
                 })
                 .catch((err) => {
-                    window.alert("Error in updating employee!");
+                    window.alert(err.response.data.errorMessage);
                     console.log("Err: ", err);
                 });
 
@@ -155,7 +230,7 @@ class EmployeeOpr extends PureComponent {
             /* It works bcz file type in form in an uncontrolled component, we need to use handler for handling form */
 
             console.log("Inside new employee method");
-            
+
             axios({
                 method: 'post',
                 url: 'http://localhost:3000/employees/new',
@@ -168,8 +243,8 @@ class EmployeeOpr extends PureComponent {
                     this.props.history.push({ pathname: '/employees' });
                 })
                 .catch((err) => {
-                    console.log("Err: ", err);
-                    window.alert("Error in creating new employee!");
+                    console.log("Err message new: ", err.response);
+                    window.alert(err.response.data.errorMessage);
                 });
         }
 
@@ -183,27 +258,33 @@ class EmployeeOpr extends PureComponent {
                     <FormGroup controlId="formHorizontalEmail">
                         <Col componentClass={ControlLabel} sm={2}>Name</Col>
                         <Col sm={6}>
-                            <FormControl type="text" placeholder="Name"
+                            <FormControl type="text" placeholder="Name" name="empName"
                                 defaultValue={this.state.editEmployeeData ? this.state.editEmployeeData.empName : null}
-                                required />
+                            />
+                            {console.log("this.state", this.state)}
+                            {console.log("this.state.formValidation['empName']", this.state.formValidation['empName'])}
+                            <span style={{ color: "red" }}>{this.state.formValidation["empName"]}</span>
+
                         </Col>
                     </FormGroup>
 
                     <FormGroup>
                         <Col componentClass={ControlLabel} sm={2}>Email</Col>
                         <Col sm={6}>
-                            <FormControl type="email" placeholder="Email"
+                            <FormControl type="email" placeholder="Email" name="email"
                                 defaultValue={this.state.editEmployeeData ? this.state.editEmployeeData.email : null}
-                                required />
+                            />
+                            <span style={{ color: "red" }}>{this.state.formValidation["email"]}</span>
                         </Col>
                     </FormGroup>
 
                     <FormGroup controlId="formHorizontalEmail">
                         <Col componentClass={ControlLabel} sm={2}>ID</Col>
                         <Col sm={6}>
-                            <FormControl type="number" placeholder="ID should be unique"
+                            <FormControl type="number" placeholder="ID should be unique" name="empID"
                                 defaultValue={this.state.editEmployeeData ? this.state.editEmployeeData.empID : null}
-                                required />
+                            />
+                            <span style={{ color: "red" }}>{this.state.formValidation["empID"]}</span>
                         </Col>
                     </FormGroup>
 
@@ -211,11 +292,12 @@ class EmployeeOpr extends PureComponent {
                         <Col componentClass={ControlLabel} sm={2}>Date Of Birth</Col>
                         <Col sm={6}>
                             <DatePicker className="datepickerClass"
+                                name="dob"
                                 selected={this.state.startDate}
                                 onChange={this.handleDateChange}
                                 defaultValue={this.state.editEmployeeData ? this.state.editEmployeeData.dob : null}
-                                required
                             />
+                            <span style={{ color: "red" }}>{this.state.formValidation["dob"]}</span>
                         </Col>
                     </FormGroup>
 
@@ -223,15 +305,16 @@ class EmployeeOpr extends PureComponent {
                         <Col componentClass={ControlLabel} sm={2}>Photo</Col>
                         <Col sm={6}>
                             <FormControl
+                                name="file"
                                 type="file"
                                 onChange={this.handleFileChange}
-                                required= {window.location.href === "http://localhost:3001/employees/new" ? true : false}
+                                // required={window.location.href === "http://localhost:3001/employees/new" ? true : false}
                                 accept="image/*"
                             />
                             {/* <img src={this.state.file} alt=""  /> */}
-                            {console.log("this.state.file", this.state.file)}
-                            {console.log("this.state.fileName", this.state.fileName)}
-                            <img src={ this.state.file == null ? "/" + this.state.fileName : this.state.file } name="myImg" alt="" />
+                            {/* {console.log("this.state.file", this.state.file)} */}
+                            {/* {console.log("this.state.fileName", this.state.fileName)} */}
+                            <img src={this.state.file == null ? "/" + this.state.fileName : this.state.file} name="myImg" alt="" />
 
                         </Col>
                     </FormGroup>

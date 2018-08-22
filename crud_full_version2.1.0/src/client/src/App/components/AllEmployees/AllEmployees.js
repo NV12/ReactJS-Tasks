@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import { Table } from 'react-bootstrap';
 // import EmployeeOpr from '../EmployeeOpr/EmployeeOpr';
 import './Employee.css';
-import { ButtonToolbar, Button } from 'react-bootstrap';
+import { Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import withRouter from 'react-router-dom/withRouter';
@@ -17,6 +17,7 @@ class AllEmployees extends PureComponent {
 
         this.removeEmployee = this.removeEmployee.bind(this);
         this.fetchEmployees = this.fetchEmployees.bind(this);
+
     }
 
     componentDidMount() {
@@ -81,6 +82,7 @@ class AllEmployees extends PureComponent {
     }
 
     render() {
+        // window.alert("Freeze!");
         console.log("Inside all employee render!", this.state.employeeList);
         const Employees = this.state.employeeList.map((emp, id) => {
             return (
@@ -103,6 +105,7 @@ class AllEmployees extends PureComponent {
         })
 
         return (
+
             <div>
                 <Table responsive>
                     <thead>
@@ -122,9 +125,7 @@ class AllEmployees extends PureComponent {
 
                 <div>
                     <Link to={this.props.match.url + "/new"}>
-                        <ButtonToolbar>
-                            <Button bsStyle="primary" onClick={this.handleEmployeeForm} >New Employee</Button>
-                        </ButtonToolbar>
+                        <Button bsStyle="primary" onClick={this.handleEmployeeForm} >New Employee</Button>
                     </Link>
                 </div>
             </div>

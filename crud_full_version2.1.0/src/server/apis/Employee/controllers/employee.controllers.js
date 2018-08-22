@@ -21,8 +21,6 @@ exports.create = (req, res) => {
 
     employee.save((err, emp) => {
         if (err) {
-            console.log("Error: ", err);
-
             // Deleting the file came with new employee request
             fs.unlink(path.join(__dirname, '../../../../client/public', req.file.filename), (err) => {
                 if (err) {
@@ -31,9 +29,15 @@ exports.create = (req, res) => {
                 }                
                 console.log('successfully deleted ');
             });
-
             console.log("Error in creating new employee: ", err);
-            res.status(500).send(err)
+            
+            if(err.message.includes("email"))   
+                res.status(409).send({errorMessage: 'Plz choose another unique emailID'})
+            else if(err.message.includes("empID"))  
+                res.status(409).send({errorMessage: "Plz choose another unique employee ID"});
+            else    
+                res.status(500).send(err);
+
         } else {
             console.log("employee created successfully!: ", emp);
             res.send(emp);
@@ -140,8 +144,14 @@ exports.update = (req, res) => {
 
     Employee.findOneAndUpdate(updateEmpProp, newEmp, (err, emp) => {
         if (err) {
-            console.log("Update Error: ", err);
-            res.status(500).send(err);
+            // console.log("Update Error: ", err);
+            if(err.message.includes("email"))   
+                res.status(409).send({errorMessage: 'Plz choose another unique emailID'})
+            else if(err.message.includes("empID"))  
+                res.status(409).send({errorMessage: "Plz choose another unique employee ID"});
+            else    
+                res.status(500).send(err);
+            // res.status(500).send(err);
         } else {
             console.log("Employee updated successfully!");
             res.send(emp);
