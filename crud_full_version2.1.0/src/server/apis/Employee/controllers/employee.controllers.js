@@ -31,10 +31,10 @@ exports.create = (req, res) => {
             });
             console.log("Error in creating new employee: ", err);
             
-            if(err.message.includes("email"))   
-                res.status(409).send({errorMessage: 'Plz choose another unique emailID'})
-            else if(err.message.includes("empID"))  
-                res.status(409).send({errorMessage: "Plz choose another unique employee ID"});
+            if(err.message.indexOf("email") != -1)   
+                res.status(409).send({errorMessage: 'Plz choose another unique email'})
+            else if(err.message.indexOf("empID") != -1)  
+                res.status(409).send({errorMessage: "Plz choose another unique ID"});
             else    
                 res.status(500).send(err);
 
@@ -145,10 +145,10 @@ exports.update = (req, res) => {
     Employee.findOneAndUpdate(updateEmpProp, newEmp, (err, emp) => {
         if (err) {
             // console.log("Update Error: ", err);
-            if(err.message.includes("email"))   
-                res.status(409).send({errorMessage: 'Plz choose another unique emailID'})
-            else if(err.message.includes("empID"))  
-                res.status(409).send({errorMessage: "Plz choose another unique employee ID"});
+            if(err.message.indexOf("email") != -1)   
+                res.status(409).send({errorMessage: 'Plz choose another unique email'})
+            else if(err.message.indexOf("empID") != -1)  
+                res.status(409).send({errorMessage: "Plz choose another unique ID"});
             else    
                 res.status(500).send(err);
             // res.status(500).send(err);

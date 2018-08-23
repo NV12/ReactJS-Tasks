@@ -3,9 +3,12 @@ import DatePicker from 'react-datepicker';
 import moment from 'moment';
 import { withRouter } from 'react-router-dom';
 import axios from 'axios';
-import { Form, FormGroup, FormControl, Col, ControlLabel, Button } from './../../../../node_modules/react-bootstrap';
+import { Form, FormGroup, FormControl, Col, ControlLabel, Button } from 'react-bootstrap';
 import 'react-datepicker/dist/react-datepicker.css';
 import './EmployeeOpr.css';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 
 class EmployeeOpr extends PureComponent {
 
@@ -33,6 +36,7 @@ class EmployeeOpr extends PureComponent {
 
     componentWillMount() {
         console.log("History Object: ", this.props)
+
         if (this.props.match.params.empID) {
 
             // Setting the headers for the axios request
@@ -69,13 +73,42 @@ class EmployeeOpr extends PureComponent {
         }
     }
 
-    componentWillUnmount() {
-        console.log("Inside componentWillUnmount!");
-        // window.alert("YO!");
-        this.setState({
-            editEmployeeData: null
-        });
+    notify(status, error) {
+        console.log("Inside notify");
+        console.log("error: ", error);
+
+        switch (status) {
+            case 'editEmpError':
+                toast.error("Could not edit employee " + error + " !", {
+                    position: toast.POSITION.TOP_CENTER
+                });
+                break;
+
+            case 'newEmpError':
+                toast.error("Could not create new Employee " + error + " !", {
+                    position: toast.POSITION.TOP_CENTER
+                });
+                break;
+
+            default:
+                toast.error("Unknown error occured!", {
+                    position: toast.POSITION.TOP_CENTER
+                });
+
+                break;
+        }
     }
+
+
+    // componentWillUnmount() {
+
+    //     console.log("Inside componentWillUnmount!");
+    //     // window.alert("YO!");
+    //     this.setState({
+    //         editEmployeeData: null
+    //     });
+    // }
+
 
     handleDateChange(date) {
         this.setState({
@@ -90,7 +123,8 @@ class EmployeeOpr extends PureComponent {
         //  Make changes in file only if file is changed not when it is empty
         if (newFile) {
             console.log("File is changed: ")
-            
+
+            // show no validation error when file input is not empty
             validateFieldsData.file = null;
             this.setState({
                 fileData: newFile,
@@ -98,16 +132,17 @@ class EmployeeOpr extends PureComponent {
                 formValidation: validateFieldsData
             });
         } else {
-            // Removing the file from image if user cancels the upload
             console.log("File is not changed: ")
 
-            // Image can be accepted as empty if it is edit page
-            if(window.location.href === "http://localhost:3001/employees/new") {
+            // Image can not be accepted as empty if it is new empoyee page
+            if (window.location.href === "http://localhost:3001/employees/new") {
                 validateFieldsData.file = "Image can't be empty"
             } else {
+                // Image can be empty on edit page as image already exists on server 
                 validateFieldsData.file = null;
             }
-            
+
+            // Removing the file from image form img if user cancels the upload
             this.setState({
                 fileData: newFile,
                 file: null,
@@ -118,7 +153,7 @@ class EmployeeOpr extends PureComponent {
 
     validateFields(event) {
         console.log("Inside validateFields");
-        
+
         const errorMessage = {
             "empName": null,
             "email": null,
@@ -129,36 +164,39 @@ class EmployeeOpr extends PureComponent {
         let validateStatus = true;
 
         // console.log("event.empName.value", event.empName.value);
-        if(!event.empName.value) {
+        if (!event.empName.value) {
             console.log("empName is null");
             errorMessage.empName = "Name can't be empty";
             validateStatus = false;
         }
 
-        if(!event.email.value) {
+        if (!event.email.value) {
             console.log("email is null");
             errorMessage.email = "Email can't be empty";
             validateStatus = false;
         }
 
-        if(!event.empID.value) {
+        if (!event.empID.value) {
             console.log("empID is null");
             errorMessage.empID = "ID can't be empty"
             validateStatus = false;
         }
 
-        if(!event.dob.value) {
+        if (!event.dob.value) {
             console.log("dob is null");
             errorMessage.dob = "Date of birth can't be empty"
             validateStatus = false;
         }
 
         // Image is required for new employee not for edit employee
-        if(window.location.href === "http://localhost:3001/employees/new" && !this.state.fileData) {
+        if (window.location.href === "http://localhost:3001/employees/new" && !this.state.fileData) {
             console.log("Image is null");
-            errorMessage.dob = "Image can't be empty"
+            errorMessage.file = "Image can't be empty"
             validateStatus = false;
         }
+
+        // Update state only if there is any vaidation needed
+        // We need to nullify all the older validations so we need to set formValidation obj to null
 
         this.setState({
             formValidation: errorMessage
@@ -167,15 +205,17 @@ class EmployeeOpr extends PureComponent {
         return validateStatus;
     }
 
-
     saveEmployee(event) {
         event.preventDefault();
         console.log("Inside saveEmployee");
 
+        // Validating form for empty fields before starting submit 
         if (!this.validateFields(event.target)) return;
+        console.log("Vaidated!");
 
-        // if empID exists, edit employee
-        // else create new emp
+        /*  Logic: if empID exists, edit employee */
+        /*        else create new emp             */
+
         const empData = new FormData();
 
         empData.append('empName', event.target[0].value);
@@ -185,12 +225,12 @@ class EmployeeOpr extends PureComponent {
 
         // Append file in empData, only if it is changed
         if (this.state.fileData) {
-            // console.log("File data exists!");
+            console.log("File data exists!");
             empData.append('file', this.state.fileData);
             empData.append('fileName', this.state.fileData.name);
             empData.append('oldFileName', this.state.fileName);
         } else {
-            // console.log("File data does not exist!");
+            console.log("File data does not exist!");
             empData.append('nofile', true);
             empData.append('fileName', this.state.fileName);
         }
@@ -202,7 +242,8 @@ class EmployeeOpr extends PureComponent {
             'Session-Password': localStorage.getItem('adminPassword')
         };
 
-        // Edit employee method
+        /* Edit employee method */
+
         if (this.props.match.params.empID) {
             console.log("Inside edit employee method");
 
@@ -214,12 +255,33 @@ class EmployeeOpr extends PureComponent {
             })
                 .then((res) => {
                     console.log("Editing res: ", res);
-                    window.alert("Employee updated successfully!");
-                    this.props.history.push({ pathname: '/employees' });
+                    // console.log()
+                    // window.alert("Employee updated successfully!");
+                    this.props.history.push({
+                        pathname: '/employees',
+                        state: {
+                            editEmpStatus: true,
+                            editEmpName: res.data.empName
+                        }
+                    });
                 })
                 .catch((err) => {
-                    window.alert(err.response.data.errorMessage);
-                    console.log("Err: ", err);
+                    // console.log("err", err);
+                    let errorMessageObj = { ...this.state.formValidation };
+
+                    if (err.response.data.errorMessage.indexOf('email') !== -1)
+                        errorMessageObj.email = err.response.data.errorMessage;
+                    else if (err.response.data.errorMessage.indexOf('ID') !== -1)
+                        errorMessageObj.empID = err.response.data.errorMessage;
+                    else
+                        window.alert(err.response.data.errorMessage);
+                    // this.notify('editEmpError', err.response.data.errorMessage);
+
+
+                    this.setState({
+                        formValidation: errorMessageObj
+                    });
+
                 });
 
         } else {    //New emp method
@@ -239,12 +301,34 @@ class EmployeeOpr extends PureComponent {
             })
                 .then((res) => {
                     console.log("Adding Res: ", res);
-                    window.alert("Employee added successfully!");
-                    this.props.history.push({ pathname: '/employees' });
+
+                    // window.alert("Employee added successfully!");
+                    this.props.history.push({
+                        pathname: '/employees',
+                        state: {
+                            newEmpStatus: true,
+                            newEmpName: res.data.empName
+                        }
+                    });
                 })
                 .catch((err) => {
                     console.log("Err message new: ", err.response);
                     window.alert(err.response.data.errorMessage);
+                    let errorMessageObj = { ...this.state.formValidation };
+
+                    if (err.response.data.errorMessage.indexOf('email') !== -1)
+                        errorMessageObj.email = err.response.data.errorMessage;
+                    else if (err.response.data.errorMessage.indexOf('ID') !== -1)
+                        errorMessageObj.empID = err.response.data.errorMessage;
+                    else
+                        window.alert(err.response.data.errorMessage);
+                    // this.notify('newEmpError', err.response.data.errorMessage);
+
+
+                    this.setState({
+                        formValidation: errorMessageObj
+                    });
+
                 });
         }
 
@@ -253,16 +337,15 @@ class EmployeeOpr extends PureComponent {
     render() {
         return (
             <div className="form">
+
                 <Form horizontal onSubmit={this.saveEmployee} >
 
-                    <FormGroup controlId="formHorizontalEmail">
+                    <FormGroup>
                         <Col componentClass={ControlLabel} sm={2}>Name</Col>
                         <Col sm={6}>
                             <FormControl type="text" placeholder="Name" name="empName"
                                 defaultValue={this.state.editEmployeeData ? this.state.editEmployeeData.empName : null}
                             />
-                            {console.log("this.state", this.state)}
-                            {console.log("this.state.formValidation['empName']", this.state.formValidation['empName'])}
                             <span style={{ color: "red" }}>{this.state.formValidation["empName"]}</span>
 
                         </Col>
@@ -274,11 +357,12 @@ class EmployeeOpr extends PureComponent {
                             <FormControl type="email" placeholder="Email" name="email"
                                 defaultValue={this.state.editEmployeeData ? this.state.editEmployeeData.email : null}
                             />
+                            {console.log("this.state.formValidation['email']", this.state.formValidation['email'])}
                             <span style={{ color: "red" }}>{this.state.formValidation["email"]}</span>
                         </Col>
                     </FormGroup>
 
-                    <FormGroup controlId="formHorizontalEmail">
+                    <FormGroup>
                         <Col componentClass={ControlLabel} sm={2}>ID</Col>
                         <Col sm={6}>
                             <FormControl type="number" placeholder="ID should be unique" name="empID"
@@ -288,7 +372,7 @@ class EmployeeOpr extends PureComponent {
                         </Col>
                     </FormGroup>
 
-                    <FormGroup controlId="formHorizontalPassword">
+                    <FormGroup>
                         <Col componentClass={ControlLabel} sm={2}>Date Of Birth</Col>
                         <Col sm={6}>
                             <DatePicker className="datepickerClass"
@@ -301,7 +385,7 @@ class EmployeeOpr extends PureComponent {
                         </Col>
                     </FormGroup>
 
-                    <FormGroup controlId="formHorizontalEmail">
+                    <FormGroup>
                         <Col componentClass={ControlLabel} sm={2}>Photo</Col>
                         <Col sm={6}>
                             <FormControl
@@ -311,9 +395,7 @@ class EmployeeOpr extends PureComponent {
                                 // required={window.location.href === "http://localhost:3001/employees/new" ? true : false}
                                 accept="image/*"
                             />
-                            {/* <img src={this.state.file} alt=""  /> */}
-                            {/* {console.log("this.state.file", this.state.file)} */}
-                            {/* {console.log("this.state.fileName", this.state.fileName)} */}
+                            <span style={{ color: "red" }}>{this.state.formValidation["file"]}</span>
                             <img src={this.state.file == null ? "/" + this.state.fileName : this.state.file} name="myImg" alt="" />
 
                         </Col>
@@ -321,12 +403,13 @@ class EmployeeOpr extends PureComponent {
 
                     <FormGroup>
                         <Col smOffset={2} sm={10}>
-                            <Button bsStyle="success" type="submit">Save</Button>
+                            <Button bsStyle="success" type="submit" >Save</Button>
                             <Button bsStyle="info" onClick={this.props.history.goBack}>Back</Button>
                         </Col>
                     </FormGroup>
 
                 </Form>
+                {/* <ToastContainer autoClose={2500} /> */}
             </div>
         )
     }

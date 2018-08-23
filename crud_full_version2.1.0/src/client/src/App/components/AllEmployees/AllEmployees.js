@@ -6,6 +6,8 @@ import { Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import withRouter from 'react-router-dom/withRouter';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 class AllEmployees extends PureComponent {
     constructor(props) {
@@ -20,15 +22,61 @@ class AllEmployees extends PureComponent {
 
     }
 
+    componentWillMount() {
+        console.log("Inside componentWillMount: ");
+        console.log("History obj", this.props.location.state);
+        if (this.props.location.state) {
+            if (this.props.location.state.newEmpStatus) {
+                this.notify('newEmpSuccess', this.props.location.state.newEmpName);
+            }
+
+            if (this.props.location.state.editEmpStatus) {
+                this.notify('editEmpSuccess', this.props.location.state.editEmpName);
+            }
+        }
+    }
     componentDidMount() {
         console.log("Inside componentDidMount");
         this.fetchEmployees();
     }
 
+    notify(status, name) {
+        console.log("Inside notify");
+        console.log("name: ", name);
+
+        switch (status) {
+            case 'newEmpSuccess':
+                toast.success(name + " added successfully !", {
+                    position: toast.POSITION.TOP_CENTER
+                });
+                break;
+
+            case 'editEmpSuccess':
+                toast.success(name + " edited successfully !", {
+                    position: toast.POSITION.TOP_CENTER
+                });
+                break;
+
+            case 'deleteEmpSuccess':
+                toast.success(name + " deleted successfully !", {
+                    position: toast.POSITION.TOP_CENTER
+                });
+                break;
+
+            case 'deleteEmpError':
+                toast.error("Could not delete " + name + " !", {
+                    position: toast.POSITION.TOP_CENTER
+                });
+                break;
+
+            default:
+                console.log("Default success");
+                break;
+        }
+    }
+
     fetchEmployees() {
         console.log("Inside fetchEmployees");
-        // console.log("Localstorage: ", localStorage);
-        // axios.defaults.withCredentials = true;
         let config = {
             headers: {
                 'Content-Type': 'application/json',
@@ -74,10 +122,13 @@ class AllEmployees extends PureComponent {
         axios.delete('http://localhost:3000/employees/' + empIndex, config)
             .then((res) => {
                 console.log("Inside delete res: ", res);
+
+                this.notify('deleteEmpSuccess', res.data.empName);
                 this.fetchEmployees();
             })
             .catch((err) => {
                 console.log("Delete Error: ", err);
+                this.notify('deleteEmpError');
             });
     }
 
@@ -128,6 +179,7 @@ class AllEmployees extends PureComponent {
                         <Button bsStyle="primary" onClick={this.handleEmployeeForm} >New Employee</Button>
                     </Link>
                 </div>
+                <ToastContainer autoClose={2500} />
             </div>
         );
     }
