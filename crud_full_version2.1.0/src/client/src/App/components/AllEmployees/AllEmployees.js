@@ -28,6 +28,7 @@ class AllEmployees extends PureComponent {
         if (this.props.location.state) {
             if (this.props.location.state.newEmpStatus) {
                 this.notify('newEmpSuccess', this.props.location.state.newEmpName);
+                this.props.location.state.newEmpName = null;
             }
 
             if (this.props.location.state.editEmpStatus) {
@@ -108,7 +109,14 @@ class AllEmployees extends PureComponent {
     }
 
     removeEmployee(empIndex, event) {
+        let ans;
+        ans = window.prompt("Hey, are sure you want to delete this? y or n \n NOTE:It took many key strokes to add this dummy employee");
+        
+        console.log("Your answer: ", ans);
 
+        if(ans==='n')   return;
+        // else {}
+        
         console.log("Inside removeEmployee");
         let config = {
             headers: {

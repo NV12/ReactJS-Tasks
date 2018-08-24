@@ -62,6 +62,8 @@ class Routes extends Component {
                                 this.isAuthenticatedCompact(props, EmployeeOpr)
                             )} />
 
+                            {/* Setting default route */}
+                            <Redirect to="/" />
                         </Switch>
                     </div>
                 </BrowserRouter>

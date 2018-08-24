@@ -2,9 +2,8 @@ import React, { Component } from 'react';
 import { Navbar, Nav, NavItem } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
 import { Redirect, withRouter } from 'react-router-dom';
-// import AllEmployees from '../AllEmployees/AllEmployees';
-// import EmployeeOpr from '../EmployeeOpr/EmployeeOpr';
-// import Login from '../Login/Login';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import './NavBar.css';
 import axios from 'axios';
 
@@ -26,7 +25,6 @@ class NavBar extends Component {
 
     componentDidMount() {
         // console.log("Inside componentDidMount");
-        // this.manageNavLinks();
     }
 
     componentWillReceiveProps() {
@@ -43,9 +41,27 @@ class NavBar extends Component {
         // this.manageNavLinks();
     }
 
+    notify(status, message) {
+        console.log("Inside notify");
+        console.log("message: ", message);
+
+        switch (status) {
+            case 'success':
+                toast.success(message, {
+                    position: toast.POSITION.TOP_CENTER
+                });
+                break;
+
+            default:
+                console.log("Default success");
+                break;
+        }
+    }
+
     onLogin() {
-        // console.log("Inside onLogin");
-        window.alert("Logged in successfully!");
+        console.log("Inside onLogin");
+        this.notify("success", "Logged in successfully!");
+        // window.alert("Logged in successfully!");
         this.setState({
             loginStatus: true
         });
@@ -65,18 +81,19 @@ class NavBar extends Component {
         // console.log("config: ", config);
         axios.get('http://localhost:3000/admins/logout', config)
             .then((res) => {
-                // console.log("Logged out!", res);
+                console.log("Logged out!", res);
 
                 // Removing session info stored in localstorage
                 localStorage.removeItem('adminEmail');
                 localStorage.removeItem('adminPassword');
 
-                window.alert("Logged out successfully!");
+                // window.alert("Logged out successfully!");
+                this.notify("success", "Logged out successfully!");
 
                 this.setState({
                     loginStatus: false
                 });
-                // this.manageNavLinks();
+        
                 return <Redirect to='/login' />
             })
             .catch((err) => {
@@ -85,20 +102,14 @@ class NavBar extends Component {
     }
 
     manageNavLinks() {
-        // console.log("Inside manageNavLinks");
-        // console.log("this.state.loginStatus", this.state.loginStatus);
-        // let navLinks;
         const navLinksAfterLoggedIn = ['Employees', 'Settings'];
         const navLinksBeforeLoggingIn = ['Login'];
 
-        // console.log("localStorage: ", localStorage);
-        // console.log("localStorage.getItem('adminEmail')", localStorage.getItem('adminEmail'));
-        // console.log("localStorage.getItem('adminEmail')==null", localStorage.getItem('adminEmail') !== null);
-
+      
         // If logged in then render navLinksAfterLoggedIn
-        // if (this.state.loginStatus) {
+      
         if (localStorage.getItem('adminEmail')) {
-            // console.log("Logged in links");
+            
             this.navLinks = navLinksAfterLoggedIn.map((element, index) => {
                 return (
                     // Key is required to add when using array to propogate elements 
@@ -117,7 +128,7 @@ class NavBar extends Component {
                 </Nav>
             ));
         } else {
-            // console.log("Logged out in links");
+            
             this.navLinks = navLinksBeforeLoggingIn.map((element, index) => {
                 return (
                     <Nav key={index} pullRight>
@@ -128,12 +139,8 @@ class NavBar extends Component {
                 );
             })
         }
-        // console.log("NAVITEMS: ", this.navLinks);
-
+        
         return this.navLinks;
-        // this.setState({
-        //     navbarItems: this.navLinks
-        // });
     }
 
 
@@ -158,7 +165,7 @@ class NavBar extends Component {
                     // Showing welcome message on after login
                     // (window.location.href === "http://localhost:3001/" ) ? <h1>Welcome to Admin Portal!</h1> : null
                 }
-
+                <ToastContainer autoClose={2500} />
             </div>
         );
     }

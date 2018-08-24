@@ -313,7 +313,7 @@ class EmployeeOpr extends PureComponent {
                 })
                 .catch((err) => {
                     console.log("Err message new: ", err.response);
-                    window.alert(err.response.data.errorMessage);
+                    // window.alert(err.response.data.errorMessage);
                     let errorMessageObj = { ...this.state.formValidation };
 
                     if (err.response.data.errorMessage.indexOf('email') !== -1)
@@ -409,6 +409,7 @@ class EmployeeOpr extends PureComponent {
                     </FormGroup>
 
                 </Form>
+                {/* Adding below doesn't work */}
                 {/* <ToastContainer autoClose={2500} /> */}
             </div>
         )
