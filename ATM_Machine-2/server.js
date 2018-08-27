@@ -16,6 +16,8 @@ mongoose.connection.on('error', () => {
 mongoose.connection.once('open', () => {
     console.log("There we go! I am on!");
 });
+// mongoose.set('useFindAndModify', false);
+// mongoose.set('useCreateIndex', true);
 
 app.use(bodyParser.json({
     // limit: '200mb'

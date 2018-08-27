@@ -10,6 +10,7 @@ module.exports = (app) => {
 
     app.post('/atm/withDraw', atm.withDraw);
     
+    app.put('/atm/update', atm.update);
     // app.put('/employees/edit/:empID', upload.single('file'), employee.update);
 
     // app.delete('/employees/:empID', employee.delete);

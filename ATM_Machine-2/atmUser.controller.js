@@ -24,13 +24,6 @@ exports.add = (req, res) => {
     });
 };
 
-// exports.login = (req, res) => {
-//     console.log("Inside login");
-//     console.log("req.body: ", req.body);
-
-
-// }
-
 exports.login = (req, res) => {
     console.log("Inside login: ");
     console.log("findOne req.body: ", req.body);
@@ -51,59 +44,30 @@ exports.login = (req, res) => {
     });
 }
 
-exports.withDraw = (req, res) => {
-    console.log("Inside withdraw: ");
-    console.log("findOne req.body: ", req.body);
-
-}
-
-
-exports.update = (req, res) => {
+exports.withdraw = (req, res) => {
     console.log("Inside update: ");
     console.log("Update req.body: ", req.body);
-    console.log("Update req.params: ", req.params);
-    console.log("Update req.file", req.file);
 
-    const updateEmpProp = {
-        empID: req.params.empID
-    },
-        newEmp = {
-            empName: req.body.empName,
-            email: req.body.email,
-            empID: req.body.empID,
-            dob: req.body.dob
-        };
-
-    // if file is not updated, use older one as original
-    if (req.body.nofile) newEmp.imgName = req.body.fileName;
-    else { 
-        newEmp.imgName = req.file.filename; 
-    
-        // delete the older file
-        fs.unlink(path.join(__dirname, '../../../../client/public', req.body.oldFileName), (err) => {
-            if (err) {
-                console.log("Error in changing file: ", err);
-                res.status(500).send(err);
-            }
-            console.log('successfully deleted old file');
-        });
+    const userID = {
+        _id: req.body.userID ,
     }
+    console.log("userID", userID);
 
-    console.log("newEmp.imgName", newEmp.imgName);
+    let updateUser = new atmUser({
+        _id: req.body.userID,
+        cashAvailable: req.body.balance - req.body.withdrawedAmount 
+    });
 
-    Employee.findOneAndUpdate(updateEmpProp, newEmp, (err, emp) => {
+    atmUser.findOneAndUpdate(userID, updateUser, (err, user) => {
         if (err) {
-            // console.log("Update Error: ", err);
-            if(err.message.indexOf("email") != -1)   
-                res.status(409).send({errorMessage: 'Plz choose another unique email'})
-            else if(err.message.indexOf("empID") != -1)  
-                res.status(409).send({errorMessage: "Plz choose another unique ID"});
-            else    
-                res.status(500).send(err);
-            // res.status(500).send(err);
+            console.log("Update Error: ", err);
+            res.status(500).send(err);
         } else {
-            console.log("Employee updated successfully!");
-            res.send(emp);
+            console.log("AtmUSER updated successfully!");
+            res.send(user);
         }
     });
+
+
+
 }

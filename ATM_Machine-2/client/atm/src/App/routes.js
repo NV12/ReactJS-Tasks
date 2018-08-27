@@ -2,18 +2,18 @@ import React, { Component } from 'react';
 import { BrowserRouter, Switch, Route } from 'react-router-dom';
 import Login from './components/Login/login';
 import Dashboard from './components/Dashboard/dashboard';
-// import Redirect from 'react-router-dom/Redirect';
+import Redirect from 'react-router-dom/Redirect';
 
 class Routes extends Component {
 
-    // isAuthenticated() {
-    //     // console.log("Inside isAuthenticated");
-    //     if (localStorage.getItem('adminEmail')) return true;
-    //     else {
-    //         window.alert("You are not logged in..!");
-    //         return false;
-    //     }
-    // }
+    isAuthenticated() {
+        console.log("Inside isAuthenticated");
+        if (localStorage.getItem('userID')) return true;
+        else {
+            window.alert("You are not logged in..!");
+            return false;
+        }
+    }
 
     // isAuthenticatedCompact(props, NewComponent) {
     //     // console.log("Inside isAuthenticatedCompact");
@@ -40,7 +40,7 @@ class Routes extends Component {
                                 <Login />
                             )} />
                             <Route exact path='/dashboard' render={() => (
-                                <Dashboard />
+                                this.isAuthenticated() ? <Dashboard/> : <Redirect to="/login" />
                             )} />
 
                           {/*  <Route exact path='/' render={(props) => (
@@ -49,7 +49,7 @@ class Routes extends Component {
 
 
                             {/* Setting default route */}
-                            {/* <Redirect to="/" /> */}
+                            <Redirect to="/login" />
                         </Switch>
                     </div>
                 </BrowserRouter>

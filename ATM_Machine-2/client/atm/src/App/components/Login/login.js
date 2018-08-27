@@ -46,29 +46,47 @@ class Login extends Component {
         };
 
         console.log("Form data: ", bodyFormData);
-        
+
         axios({
             method: 'post',
             url: 'http://localhost:3000/atmUser/login',
             data: bodyFormData
-        
+
         })
             .then((res) => {
                 console.log("Yeah!", res);
 
                 // Never save confidential info in localstorage
                 // localStorage.setItem('PIN', event.target[1].value);
-                localStorage.setItem("PIN", this.state.pin);
+                localStorage.setItem("userID", res.data._id);
                 localStorage.setItem("atmID", 12345);
+                localStorage.setItem("balance", res.data.cashAvailable);
+                // localStorage
+                if (res.data) {
+                    this.props.history.push({
+                        pathname: '/dashboard'
+                        // state: { loginStatus: true }
+                    });
+                }
+                else {
+                    window.alert("Wrong credentials");
+                    // this.props.history.push({
+                    //     pathname: '/login'
+                    //     // state: { loginStatus: true }
+                    // });
+                    window.location.reload();
+                }
 
-                this.props.history.push({
-                    pathname: '/dashboard'
-                    // state: { loginStatus: true }
-                });
             })
             .catch((err) => {
                 console.log("no!!");
                 console.log("Error: ", err);
+                window.alert("Wrong credentials");
+                // this.props.history.push({
+                //     pathname: '/login'
+                //     // state: { loginStatus: true }
+                // });
+                window.location.reload();
             });
     }
 
@@ -81,14 +99,14 @@ class Login extends Component {
                     </FormGroup>
                     <FormGroup controlId="userName" bsSize="large">
                         <ControlLabel>userName</ControlLabel>
-                        <FormControl autoFocus type="text" value={this.state.userName} required onChange={this.handelUserName}/>
+                        <FormControl autoFocus type="text" value={this.state.userName} required onChange={this.handelUserName} />
                     </FormGroup>
                     <FormGroup controlId="PIN" bsSize="large">
                         <ControlLabel>PIN</ControlLabel>
-                        <FormControl type="password" required value={this.state.pin} onChange={this.handelPIN}/>
+                        <FormControl type="password" required value={this.state.pin} onChange={this.handelPIN} />
                     </FormGroup>
                     {/* <FormGroup> */}
-                    <Button style={{marginLeft: "0"}}  block bsSize="large" type="submit">
+                    <Button style={{ marginLeft: "0" }} block bsSize="large" type="submit">
                         Login
                     </Button>
                     {/* </FormGroup> */}
