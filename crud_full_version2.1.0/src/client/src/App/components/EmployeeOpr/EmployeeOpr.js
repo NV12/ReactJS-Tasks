@@ -287,7 +287,7 @@ class EmployeeOpr extends PureComponent {
         } else {    //New emp method
             // Creating new emp from form data
 
-            /* THIS METHOD DOESN'T WORK!!!! FormData() */
+            /* THIS METHOD DOESN'T WORK!!!! Method: using FormData() */
             /* DUDE! THIS METHOD DOES WORK!!!! I just don't know how o_0 */
             /* It works bcz file type in form in an uncontrolled component, we need to use handler for handling form */
 
@@ -396,8 +396,13 @@ class EmployeeOpr extends PureComponent {
                                 accept="image/*"
                             />
                             <span style={{ color: "red" }}>{this.state.formValidation["file"]}</span>
-                            <img src={this.state.file == null ? "/" + this.state.fileName : this.state.file} name="myImg" alt="" />
-
+                            <img 
+                            src={this.state.file == null ? "/" + this.state.fileName : this.state.file} 
+                            name="myImg" 
+                            alt=""
+                            height = "100"
+                            width="100" 
+                            />
                         </Col>
                     </FormGroup>
 

@@ -6,8 +6,10 @@ import { Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import withRouter from 'react-router-dom/withRouter';
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { LazyLoadImage } from 'react-lazy-load-image-component';
+import 'react-lazy-load-image-component/src/effects/blur.css';
 
 class AllEmployees extends PureComponent {
     constructor(props) {
@@ -19,7 +21,6 @@ class AllEmployees extends PureComponent {
 
         this.removeEmployee = this.removeEmployee.bind(this);
         this.fetchEmployees = this.fetchEmployees.bind(this);
-
     }
 
     componentWillMount() {
@@ -96,7 +97,8 @@ class AllEmployees extends PureComponent {
                         empName: element.empName,
                         email: element.email,
                         empID: element.empID,
-                        dob: element.dob
+                        dob: element.dob,
+                        imageName: element.imgName
                     });
                 })
                 this.setState({
@@ -111,12 +113,12 @@ class AllEmployees extends PureComponent {
     removeEmployee(empIndex, event) {
         let ans;
         ans = window.prompt("Hey, are sure you want to delete this? y or n \n NOTE:It took many key strokes to add this dummy employee");
-        
+
         console.log("Your answer: ", ans);
 
-        if(ans==='n')   return;
+        if (ans === 'n') return;
         // else {}
-        
+
         console.log("Inside removeEmployee");
         let config = {
             headers: {
@@ -148,6 +150,15 @@ class AllEmployees extends PureComponent {
                 <tr key={id}>
                     <td>{id + 1}</td>
                     <td>{emp.empName}</td>
+                    <td>
+                        <LazyLoadImage
+                            src={"/" + emp.imageName}
+                            effect="blur"
+                            alt=""
+                            height = "100"
+                            width="100"
+                        />
+                    </td>
                     <td>{emp.email}</td>
                     <td>{emp.empID}</td>
                     <td>{emp.dob}</td>
@@ -159,6 +170,7 @@ class AllEmployees extends PureComponent {
                         </Link>
                     </td>
                     <td><a onClick={this.removeEmployee.bind(this, emp.empID)}  >Delete</a></td>
+                    
                 </tr>
             );
         })
@@ -171,10 +183,12 @@ class AllEmployees extends PureComponent {
                         <tr>
                             <th style={{ textAlign: "center" }} >#</th>
                             <th style={{ textAlign: "center" }} >Name</th>
+                            <th style={{ textAlign: "center" }} >Image</th>
                             <th style={{ textAlign: "center" }} >emailID</th>
                             <th style={{ textAlign: "center" }} >ID</th>
                             <th style={{ textAlign: "center" }} >DOB</th>
                             <th style={{ textAlign: "center" }} colSpan="2" >Operations</th>
+                            
                         </tr>
                     </thead>
                     <tbody>
@@ -187,7 +201,7 @@ class AllEmployees extends PureComponent {
                         <Button bsStyle="primary" onClick={this.handleEmployeeForm} >New Employee</Button>
                     </Link>
                 </div>
-                <ToastContainer autoClose={2500} />
+                {/* <ToastContainer autoClose={2500} /> */}
             </div>
         );
     }

@@ -9,8 +9,21 @@ import Redirect from 'react-router-dom/Redirect';
 class Routes extends Component {
 
     isAuthenticated() {
-        // console.log("Inside isAuthenticated");
-        if (localStorage.getItem('adminEmail')) return true;
+        console.log("Inside isAuthenticated");
+        
+        let totalSessionTime = new Date().getTime() - localStorage.getItem('setupTime');
+
+        let timeOutHours = 15;
+        let timeOut = timeOutHours  * 60 * 60 * 1000;
+
+        if (totalSessionTime > timeOut) {
+            window.alert("session expired!");
+            localStorage.removeItem('adminEmail');
+            localStorage.removeItem('adminPassword');
+            localStorage.removeItem('setupTime');
+            return false;
+        }
+        else if (localStorage.getItem('adminEmail')) return true;
         else {
             window.alert("You are not logged in..!");
             return false;
@@ -18,9 +31,21 @@ class Routes extends Component {
     }
 
     isAuthenticatedCompact(props, NewComponent) {
-        // console.log("Inside isAuthenticatedCompact");
+        console.log("Inside isAuthenticatedCompact");
 
-        if (localStorage.getItem('adminEmail')) {
+        let totalSessionTime = new Date().getTime() - localStorage.getItem('setupTime');
+        
+        let timeOutHours = 15;
+        let timeOut = timeOutHours  * 1000;
+        
+        if (totalSessionTime > timeOut) {
+            window.alert("session expired!");
+            localStorage.removeItem('adminEmail');
+            localStorage.removeItem('adminPassword');
+            localStorage.removeItem('setupTime');
+            return <Redirect to="/login" />
+        }
+        else if (localStorage.getItem('adminEmail')) {
             return <NewComponent {...props} />
         }
         else {
@@ -38,16 +63,16 @@ class Routes extends Component {
                         <NavBar />
                         <Switch>
 
-                             <Route exact path='/login' render={() => (
+                            <Route exact path='/login' render={() => (
                                 <Login loginMethod={this.onLogin} />
                             )} />
-                            
+
                             <Route exact path='/' render={(props) => (
-                                this.isAuthenticated() ?<h1>Welcome to Admin Portal!</h1> : <Redirect to="/login" />
+                                this.isAuthenticated() ? <h1>Welcome to Admin Portal!</h1> : <Redirect to="/login" />
                             )} />
 
                             <Route exact path='/settings' render={(props) => (
-                                this.isAuthenticated() ?<h1>Settings</h1> : <Redirect to="/login" />
+                                this.isAuthenticated() ? <h1>Settings</h1> : <Redirect to="/login" />
                             )} />
 
                             <Route exact path='/employees' render={(props) => (

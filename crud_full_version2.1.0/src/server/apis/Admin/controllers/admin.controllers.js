@@ -3,7 +3,6 @@ const bcrypt = require('bcrypt-nodejs');
 
 exports.create = (req, res) => {
     console.log("Inside admin create", req.body);
-    // console.log("req.files", req.file);
     console.log("req.params", req.params);
     let admin = new Admin();
     admin.adminEmail =  req.body.adminEmail,
@@ -65,7 +64,7 @@ exports.findOne = (req, res) => {
     console.log("findOne req.data: ", req.data);
     console.log("findOne req.body: ", req.body);
     console.log("findOne req.params: ", req.params);
-
+    // console.log("req.statusMessage", req.statusMessage);
     const findOneAdminID = {
         _id: req.params.adminID
     };

@@ -86,6 +86,7 @@ class NavBar extends Component {
                 // Removing session info stored in localstorage
                 localStorage.removeItem('adminEmail');
                 localStorage.removeItem('adminPassword');
+                localStorage.removeItem('setupTime');
 
                 // window.alert("Logged out successfully!");
                 this.notify("success", "Logged out successfully!");
@@ -147,7 +148,7 @@ class NavBar extends Component {
     render() {
         return (
             <div>
-                <Navbar inverse collapseOnSelect>
+                <Navbar inverse collapseOnSelect fixedTop={true}>
                     <Navbar.Header>
                         <Navbar.Brand>
                             <LinkContainer to="/" >

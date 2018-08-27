@@ -1,4 +1,5 @@
 body {
+    margin-top: 65px;
     background: #70e1f5;
     /* fallback for old browsers */
     background: -webkit-linear-gradient(to right, #ffd194, #70e1f5);

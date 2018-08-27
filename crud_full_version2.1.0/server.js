@@ -75,7 +75,7 @@ const storage = multer.diskStorage({
     filename: function(req, file, callback) {
         // console.log("Inside multer config: req: ", req);
         console.log("FILE IS: ", file);
-        callback(null, `${new Date()}-${file.originalname}`);
+        callback(null, `${new Date().getTime()}-${file.originalname}`);
     }
 });
 const upload = multer({ storage });

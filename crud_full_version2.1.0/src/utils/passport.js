@@ -37,13 +37,15 @@ module.exports = function(passport) {
             // If no admin found, return the message
             if(!admin) {
                 console.log("If no admin found, return the message");
-                return done(null, false, req.flash('loginMessage', 'No user found.'));
+                // req.param('errorMessage') = 'No admin found.';
+                return done(null, false, {message: 'No user found.'});
             }
 
             // If admin found but wrong password
             if(!admin.validPassword(adminPassword)) {
                 console.log("If admin found but wrong password");
-                return done(null, false, req.flash('loginMessage', 'Oops! Wrong password.'));
+                // req.param('errorMessage') = 'Oops! Wrong password.';
+                return done(null, false, {message: 'Oops! Wrong password.'});
             }
 
             // If all goes well, return successfull error

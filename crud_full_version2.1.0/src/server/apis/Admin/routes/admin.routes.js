@@ -4,9 +4,6 @@ module.exports = (app, passport) => {
 
     //  How to take common word ADMINS out of all paths
 
-    // Route for checking whether admin is logged in or not
-    // app.get('/');
-
     app.get('/admins', admin.findAll);
 
     app.get('/admins/logout', admin.logout);
@@ -16,7 +13,8 @@ module.exports = (app, passport) => {
 
     // Admin login
     app.post('/admins/login', passport.authenticate('local-login', {
-            failureRedirect: '/admins/login'
+            failureRedirect: '/admins/login',
+            failureFlash : true
         }),
         function (req, res) {
             console.log("Inside passport success");
