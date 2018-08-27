@@ -10,50 +10,45 @@ class Routes extends Component {
 
     isAuthenticated() {
         console.log("Inside isAuthenticated");
-        
-        let totalSessionTime = new Date().getTime() - localStorage.getItem('setupTime');
 
-        let timeOutHours = 15;
-        let timeOut = timeOutHours  * 60 * 60 * 1000;
-
-        if (totalSessionTime > timeOut) {
-            window.alert("session expired!");
-            localStorage.removeItem('adminEmail');
-            localStorage.removeItem('adminPassword');
-            localStorage.removeItem('setupTime');
-            return false;
-        }
-        else if (localStorage.getItem('adminEmail')) return true;
-        else {
-            window.alert("You are not logged in..!");
-            return false;
-        }
+        if (this.isUserLoggedOut() || this.isSessionTimedOut()) return false;
+        else return true;
     }
 
     isAuthenticatedCompact(props, NewComponent) {
         console.log("Inside isAuthenticatedCompact");
 
+        if (this.isUserLoggedOut() || this.isSessionTimedOut()) {
+            return <Redirect to="/login" />
+        }
+        else return <NewComponent {...props} />
+    }
+
+    isSessionTimedOut() {
         let totalSessionTime = new Date().getTime() - localStorage.getItem('setupTime');
-        
-        let timeOutHours = 15;
-        let timeOut = timeOutHours  * 1000;
-        
+
+        let timeOutHours = 1 ;
+        let timeOut = timeOutHours * 60 * 60  * 1000;
+
+        console.log("totalSessionTime", totalSessionTime);
+
         if (totalSessionTime > timeOut) {
             window.alert("session expired!");
             localStorage.removeItem('adminEmail');
             localStorage.removeItem('adminPassword');
             localStorage.removeItem('setupTime');
-            return <Redirect to="/login" />
+            return true;
         }
-        else if (localStorage.getItem('adminEmail')) {
-            return <NewComponent {...props} />
-        }
-        else {
-            window.alert("You are not logged in..!")
-            return <Redirect to="/login" />
-        }
+        else return false;
     }
 
+    isUserLoggedOut() {
+        if (!localStorage.getItem('adminEmail')) {
+            window.alert("You are not logged in!");
+            return true;
+        }
+        else return false;
+    }
     render() {
         return (
             <main>
