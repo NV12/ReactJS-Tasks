@@ -9,15 +9,13 @@ import Redirect from 'react-router-dom/Redirect';
 class Routes extends Component {
 
     isAuthenticated() {
-        console.log("Inside isAuthenticated");
-
+        // console.log("Inside isAuthenticated");
         if (this.isUserLoggedOut() || this.isSessionTimedOut()) return false;
         else return true;
     }
 
     isAuthenticatedCompact(props, NewComponent) {
-        console.log("Inside isAuthenticatedCompact");
-
+        // console.log("Inside isAuthenticatedCompact");
         if (this.isUserLoggedOut() || this.isSessionTimedOut()) {
             return <Redirect to="/login" />
         }
@@ -25,14 +23,13 @@ class Routes extends Component {
     }
 
     isSessionTimedOut() {
-        let totalSessionTime = new Date().getTime() - localStorage.getItem('setupTime');
-
-        let timeOutHours = 1 ;
-        let timeOut = timeOutHours * 60 * 60  * 1000;
+        let totalSessionTime = new Date().getTime() - localStorage.getItem('setupTime'),
+            sessionTimeOutHours = 1,
+            sessionTimeOut = sessionTimeOutHours * 60 * 60 * 1000;
 
         console.log("totalSessionTime", totalSessionTime);
 
-        if (totalSessionTime > timeOut) {
+        if (totalSessionTime > sessionTimeOut) {
             window.alert("session expired!");
             localStorage.removeItem('adminEmail');
             localStorage.removeItem('adminPassword');
@@ -52,7 +49,6 @@ class Routes extends Component {
     render() {
         return (
             <main>
-
                 <BrowserRouter>
                     <div>
                         <NavBar />
