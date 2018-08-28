@@ -20,6 +20,9 @@ class RandomNumber extends Component {
     componentWillReceiveProps(nextProps) {
         console.log("Inside componentWillReceiveProps");
         console.log("this.props", nextProps);
+        this.setState({
+            counter: nextProps.ctr
+        });
         
     }
     componentWillUpdate(prevProps, nextProps) {
@@ -49,7 +52,7 @@ class RandomNumber extends Component {
         return (
             <div>
                 {/* <form onSubmit={this.handleSubmit} > */}
-                    <input type="text" value={this.props.ctr} />
+                    <input type="text" value={this.state.counter} />
                     {/* {console.log("ctr", this.props.ctr)} */}
                     <button type="button" onClick={this.props.getRandomNumber} >Enter</button>
                 {/* </form> */}

@@ -6,9 +6,15 @@ import reducer from './App/store/numberReducer';
 import { createStore, applyMiddleware } from 'redux';
 import { Provider } from 'react-redux';
 
-// To use async code with redux
+// To use async code with redux, we need redux-thunk middleware
 import thunk from 'redux-thunk';
 
-const store = createStore(reducer, applyMiddleware(thunk));
 
-ReactDOM.render(<Provider store={store} ><App /></Provider>, document.getElementById('root'));
+const reduxStore = createStore(reducer, applyMiddleware(thunk));
+
+ReactDOM.render(
+    <Provider store={reduxStore} >
+        <App />
+    </Provider>,
+    document.getElementById('root')
+);
